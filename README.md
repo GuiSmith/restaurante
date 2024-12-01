@@ -1,6 +1,5 @@
 Aqui está o **README.md** atualizado com base nas informações fornecidas sobre a estrutura do seu projeto.
 
-```markdown
 # Projeto Restaurante - Configuração e Migrações
 
 Este projeto tem como objetivo gerenciar o sistema de restaurante, com tabelas de **usuários**, **itens de cardápio**, **comandas**, **pedidos**, **pagamentos**, entre outros. Este README fornece instruções para instalar e configurar o ambiente no **Ubuntu** e executar as migrações para criar o banco de dados e tabelas necessárias.
@@ -119,14 +118,6 @@ git clone https://github.com/seu-usuario/seu-repositorio.git
 cd seu-repositorio
 ```
 
-2. **Instalar dependências via Composer (se necessário)**:
-
-```bash
-composer install
-```
-
----
-
 ## Passo 5: Executar as Migrações
 
 No diretório `restaurante/back/migration`, existe o arquivo `Migration.php` que executa as migrações no banco de dados PostgreSQL.
@@ -142,7 +133,7 @@ Para executar as migrações, você precisa rodar o script que cria as tabelas e
 3. **Rodar a migração**:
 
 ```bash
-php back/migration/Migration.php
+php back/migration/index.php
 ```
 
 Esse comando executará o script de migração e criará todas as tabelas necessárias no banco de dados `restaurante`.
@@ -196,7 +187,6 @@ Este projeto é licenciado sob a [Licença MIT](LICENSE).
 ---
 
 Este **README.md** proporciona uma explicação clara sobre como configurar o banco de dados, instalar dependências e executar a aplicação no Ubuntu com PostgreSQL. Ele pode ser adaptado dependendo de como você estrutura o seu projeto ou ambiente de desenvolvimento.
-```
 
 ### **Alterações feitas:**
 - A estrutura de pastas foi refletida, com detalhes sobre onde estão os arquivos de código, migração e banco de dados.
