@@ -7,44 +7,49 @@ class CRUDModel
     protected static $db;
     protected static $table; // Nome da tabela associada
 
-    public function __construct()
+    public function __construct($debug = false)
     {
         if (!self::$db) {
             self::$db = Database::getInstance();
+            if ($debug) {
+                echo "<p>construtor de CRUDModel</p>";
+                var_dump(self::$db);
+            }
         }
     }
 
-    public static function insert(array $data): bool|string
+    public function insert(array $data): bool|string
     {
         return self::$db->insert(static::$table, $data);
     }
 
-    public static function update(array $data, $condition): void
+    public function update(array $data, $condition): void
     {
         self::$db->update(static::$table, $data, $condition);
     }
 
-    public static function delete($condition, $params = []): void
+    public function delete($condition, $params = []): bool|PDOStatement
     {
-        self::$db->delete(static::$table, $condition, $params);
+        return self::$db->delete(static::$table, $condition, $params);
     }
 
-    public static function find($id): mixed
+    public function find($id): mixed
     {
         $sql = "SELECT * FROM " . static::$table . " WHERE id = :id";
         return self::$db->fetch($sql, ['id' => $id]);
     }
 
-    public static function all(): array
+    public function all()
     {
         $sql = "SELECT * FROM " . static::$table;
+        //var_dump(self::$db);
         return self::$db->fetchAll($sql);
     }
 
-    public static function search(array $conditions = [], array $fields = [])
+    public function search(array $conditions = [], array $fields = [])
     {
         if (empty($conditions) && empty($fields)){
-            return static::all();
+            return $this->all();
         }else{
             return self::$db->search(static::$table, $conditions, $fields);
         }

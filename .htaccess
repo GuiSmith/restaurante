@@ -1,0 +1,19 @@
+# Permitir métodos HTTP adicionais (GET, POST, PUT, DELETE)
+<LimitExcept GET POST PUT DELETE>
+    Order Allow,Deny
+    Allow from all
+</LimitExcept>
+
+# Reescrever URLs para remover "index.php" da URL (caso esteja usando)
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?/$1 [L]
+
+# Permitir apenas acessos de determinados IPs
+Order Deny,Allow
+Deny from all
+Allow from 192.168.1.1
+
+# Definir a codificação de caracteres
+AddDefaultCharset UTF-8

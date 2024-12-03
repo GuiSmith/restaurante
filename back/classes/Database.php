@@ -36,6 +36,31 @@ class Database
         return self::$instance;
     }
 
+    // Iniciar uma transação
+    public function beginTransaction()
+    {
+        $this->pdo->beginTransaction();
+    }
+
+    // Fazer commit na transação
+    public function commit()
+    {
+        $this->pdo->commit();
+    }
+
+    // Fazer rollback na transação
+    public function rollback()
+    {
+        $this->pdo->rollBack();
+    }
+
+    // Verificar se uma transação está ativa
+    public function inTransaction()
+    {
+        return $this->pdo->inTransaction();
+    }
+
+
     public function query($sql, $params = [])
     {
         $stmt = $this->pdo->prepare($sql);
@@ -53,10 +78,10 @@ class Database
         return $this->query($sql, $params)->fetchAll();
     }
 
-    public function search($table, $conditions = [], $fields = ['*'])
+    public function search($table, $conditions = [], $fields = [])
     {
         // Se $fields for um array, converte para uma string separada por vírgulas
-        $fields = implode(", ", $fields);
+        $fields = !empty($fields) ? implode(", ", $fields) : '*';
 
         // Cria a parte do WHERE com base nas condições fornecidas
         $where = "";
@@ -84,13 +109,13 @@ class Database
     {
         $set = implode(", ", array_map(fn($key) => "$key = :$key", array_keys($data)));
         $sql = "UPDATE $table SET $set WHERE $condition";
-        $this->query($sql, $data);
+        return $this->query($sql, $data);
     }
 
-    public function delete($table, $condition, $params = [])
+    public function delete($table, $condition, $params = []): bool|PDOStatement
     {
         $sql = "DELETE FROM $table WHERE $condition";
-        $this->query($sql, $params);
+        return $this->pdo->execute($sql,$params);
     }
 }
 
