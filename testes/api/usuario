@@ -1,0 +1,40 @@
+# Testar POST (Criar) - Válido
+curl -X POST "http://localhost/restaurante/back/api/usuario.php" -H "Content-Type: application/json" -d '{"nome":"Teste","email":"teste@example.com","senha":"123456"}'
+# Testar POST (Criar) - Inválido
+curl -X POST "http://localhost/restaurante/back/api/usuario.php" -H "Content-Type: application/json" -d '{"nome":"Teste","email":"teste@example.com"}'
+
+# Testar GET All
+curl -X GET "http://localhost/restaurante/back/api/usuario.php"
+
+# Testar GET com ID = Válido
+curl -X GET "http://localhost/restaurante/back/api/usuario.php?id=9"
+# Testar GET com ID = Inválido
+curl -X GET "http://localhost/restaurante/back/api/usuario.php?id=9"
+
+# Testar PUT (Atualizar) - Válido
+curl -X PUT "http://localhost/restaurante/back/api/usuario.php" -H "Content-Type: application/json" -d '{"id":5,"nome":"Teste"}'
+# Testar PUT (Atualizar) - Inválido
+curl -X PUT "http://localhost/restaurante/back/api/usuario.php" -H "Content-Type: application/json" -d '{"nome":"Teste Atualizado"}'
+
+# Testar login com login e senha - Válido
+curl -X POST "http://localhost/restaurante/back/api/usuario.php" -H "Content-Type: application/json" -d '{"login":true,"email":"teste@example.com","senha":"123456"}'
+# Testar login com login e senha - Inválido
+curl -X POST "http://localhost/restaurante/back/api/usuario.php" -H "Content-Type: application/json" -d '{"login":true,"email":"teste@example.com","senha":"1234567890"}'
+
+# Testar login com token - Válido
+curl -X POST "http://localhost/restaurante/back/api/usuario.php" -H "Content-Type: application/json" -d '{"login":true,"token":"9f73f433b24e4e88828f45f88c2fa024985f32cd18fadb93863956530aba70d0"}'
+# Testar login com token - Válido
+curl -X POST "http://localhost/restaurante/back/api/usuario.php" -H "Content-Type: application/json" -d '{"login":true,"token":"9f73f433b24e4e88828f45f88c2fa024985f32cd18fadb93863956530aba70d0"}'
+
+# Testar logout - Válido
+curl -X DELETE "http://localhost/restaurante/back/api/usuario.php?token=9f73f433b24e4e88828f45f88c2fa024985f32cd18fadb93863956530aba70d0"
+# Testar logout - Inválido
+curl -X DELETE "http://localhost/restaurante/back/api/usuario.php?token=1234"
+
+# Testar Deleção - Válido
+curl -X DELETE "http://localhost/restaurante/back/api/usuario.php?id=5"
+# Testar Deleção - Inválido
+curl -X DELETE "http://localhost/restaurante/back/api/usuario.php?id=10"
+
+# Testar deleção sem parâmetro
+curl -X DELETE "http://localhost/restaurante/back/api/usuario.php"

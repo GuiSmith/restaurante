@@ -105,17 +105,22 @@ class Database
         return $this->pdo->lastInsertId();
     }
 
-    public function update($table, $data, $condition)
+    public function update($table, $data)
     {
         $set = implode(", ", array_map(fn($key) => "$key = :$key", array_keys($data)));
-        $sql = "UPDATE $table SET $set WHERE $condition";
-        return $this->query($sql, $data);
+        $sql = "UPDATE $table SET $set WHERE id = :id";
+        $update_query = $this->pdo->prepare($sql);
+        $update_query->execute($data);
+        return $update_query->rowCount();
     }
 
-    public function delete($table, $condition, $params = []): bool|PDOStatement
+    public function delete($table, $condition, $ids = []): bool|PDOStatement
     {
-        $sql = "DELETE FROM $table WHERE $condition";
-        return $this->pdo->execute($sql,$params);
+        $placeholders = implode(',',array_fill(0,count($ids),'?'));
+        $sql = "DELETE FROM $table WHERE id IN($placeholders)";
+        $query = $this->pdo->prepare($sql);
+        $query->execute($ids);
+        return $query->rowCount();
     }
 }
 

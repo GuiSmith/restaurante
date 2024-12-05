@@ -1,6 +1,7 @@
 <?php
 
 require_once "Database.php";
+require_once __DIR__."/../functions.php";
 
 class CRUDModel
 {
@@ -23,9 +24,9 @@ class CRUDModel
         return self::$db->insert(static::$table, $data);
     }
 
-    public function update(array $data, $condition): void
+    public function update(array $data)
     {
-        self::$db->update(static::$table, $data, $condition);
+        return self::$db->update(static::$table, $data);
     }
 
     public function delete($condition, $params = []): bool|PDOStatement
@@ -36,7 +37,12 @@ class CRUDModel
     public function find($id): mixed
     {
         $sql = "SELECT * FROM " . static::$table . " WHERE id = :id";
-        return self::$db->fetch($sql, ['id' => $id]);
+        $result = self::$db->fetch($sql, ['id' => $id]);
+        if($result){
+            return $result;
+        }else{
+            return new stdClass();
+        }
     }
 
     public function all()
