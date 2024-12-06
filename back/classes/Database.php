@@ -68,11 +68,6 @@ class Database
         return $stmt;
     }
 
-    public function fetch($sql, $params = [])
-    {
-        return $this->query($sql, $params)->fetch();
-    }
-
     public function fetchAll($sql, $params = [])
     {
         return $this->query($sql, $params)->fetchAll();
@@ -114,7 +109,7 @@ class Database
         return $update_query->rowCount();
     }
 
-    public function delete($table, $condition, $ids = []): bool|PDOStatement
+    public function delete($table,$ids = []): bool|PDOStatement
     {
         $placeholders = implode(',',array_fill(0,count($ids),'?'));
         $sql = "DELETE FROM $table WHERE id IN($placeholders)";

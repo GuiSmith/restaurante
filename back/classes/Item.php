@@ -77,7 +77,9 @@ class Item extends CRUDModel
         //Atualizando
         try{
             $linhas_afetadas = $this->update($data);
-            return criar_mensagem(true,'item atualizado com sucesso',['rows' => $linhas_afetadas]);
+            return criar_mensagem(true,
+            $linhas_afetadas > 0 ? 'item atualizado com sucesso' : 'item nao atualizado, verifique o id e tente novamente',
+            ['rows' => $linhas_afetadas]);
         } catch(Exception $e){
             return criar_mensagem(false, $e->getMessage());
         }
@@ -91,8 +93,11 @@ class Item extends CRUDModel
         //Deletando
         try{
             $ids = explode(',',$ids);
-            $linhas_afetadas = $this->delete($ids);
-            return criar_mensagem(true,'itens deletados com sucesso',['rows' => $linhas_afetadas]);
+            if($this->delete($ids)){
+                return criar_mensagem(true,'itens deletados com sucesso');
+            }else{
+                return criar_mensagem(false,'nenhum registro encontrado com ids fornecidos');
+            }
         } catch(Exception $e){
             return criar_mensagem(false,$e->getMessage());
         }

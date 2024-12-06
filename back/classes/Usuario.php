@@ -5,12 +5,20 @@ require_once 'CRUDModel.php';
 class Usuario extends CRUDModel
 {
     protected static $table = 'usuario';
+    private static $instance = null;
     
     public function __construct($debug = false)
     {
         parent::__construct(debug: $debug);
         if ($debug)
             echo "<p>Construtor de usuario</p>";
+    }
+
+    public static function getInstance(){
+        if(self::$instance == null){
+            self::$instance = new Usuario();
+        }
+        return self::$instance;
     }
 
     // Criar usuário
@@ -99,12 +107,12 @@ class Usuario extends CRUDModel
 
         // Deletar no banco
         try {
-            $ids = explode($id_string);
-            $linhas_afetadas = $this->delete($ids);
-            return [
-                'ok' => true,
-                'mensagem' => "$linhas_afetadas usuarios deletados com sucesso"
-            ];
+            $ids = explode(',',$id_string);
+            if($this->delete($ids)){
+                return criar_mensagem(true,"usuarios deletados com sucesso");
+            }else{
+                return criar_mensagem(false,'Nenhum usuario com estes IDs foram encontrados');
+            }
         } catch (Exception $e) {
             return ['ok' => false, 'mensagem' => $e->getMessage()];
         }
@@ -162,8 +170,8 @@ class Usuario extends CRUDModel
         if (!$usuario) {
             return ['ok' => false, 'mensagem' => 'Token nao encontrado'];
         }
-        $token_query = $this->inutilizar_token($token, $usuario['id']);
-        if($token_query->rowCount() > 0){
+        $linhas_afetadas = $this->inutilizar_token($token, $usuario['id']);
+        if($linhas_afetadas > 0){
             return ['ok' => true, 'mensagem' => 'Log out realizado com sucesso!'];
         }else{
             return ['ok' => false, 'mensagem' => 'Log out nao pode ser realizado, token nao foi inutilizado'];
@@ -203,9 +211,9 @@ class Usuario extends CRUDModel
     // Função para inutilizar um token
     private function inutilizar_token(string $token, $id)
     {
-        $query = $this->update(
+        $linhas_afetadas = $this->update(
             ['token' => null, 'data_hora_expiracao_token' => null, 'id' => $id]
         );
-        return $query;
+        return $linhas_afetadas;
     }
 }

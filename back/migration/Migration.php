@@ -13,12 +13,12 @@ class Migration
     }
 
     private $schemas = [
-        'types' => [
+        'type' => [
             'CRUD' => "
-                CREATE TYPE crud AS ENUM ('CREATE', 'SELECT', 'UPDATE', 'DELETE');
+                CREATE TYPE crud AS ENUM ('INSERT', 'SELECT', 'UPDATE', 'DELETE');
             "
         ],
-        'tables' => [
+        'table' => [
             'log' => "
                 CREATE TABLE IF NOT EXISTS log(
                     id SERIAL PRIMARY KEY,
@@ -39,7 +39,7 @@ class Migration
                     data_hora_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     data_hora_atualizacao TIMESTAMP,
                     token VARCHAR(255),
-                    data_expiracao_token TIMESTAMP
+                    data_hora_expiracao_token TIMESTAMP
                 );
             ",
             'item' => "
@@ -58,12 +58,12 @@ class Migration
                     data_hora_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     data_hora_fechamento TIMESTAMP,
                     status VARCHAR(20) NOT NULL,
-                    valor_total DECIMAL(10, 2) NOT NULL,
-                    valor_baixado DECIMAL(10, 2) NOT NULL,
-                    valor_recebido DECIMAL(10, 2) NOT NULL,
-                    valor_aberto DECIMAL(10, 2) NOT NULL,
-                    acrescimos DECIMAL(10, 2),
-                    descontos DECIMAL(10, 2)
+                    valor_total DECIMAL(10, 2) DEFAULT 0.00,
+                    valor_baixado DECIMAL(10, 2) DEFAULT 0.00 ,
+                    valor_recebido DECIMAL(10, 2) DEFAULT 0.00,
+                    valor_aberto DECIMAL(10, 2) DEFAULT 0.00,
+                    acrescimos DECIMAL(10, 2) DEFAULT 0.00,
+                    descontos DECIMAL(10, 2) DEFAULT 0.00
                 );
             ",
             'pedido_item' => "
@@ -88,26 +88,53 @@ class Migration
                 );
             "
         ],
-        'functions' => [
-            'criar_trigger' => "
-                CREATE OR REPLACE FUNCTION criar_trigger(
-                    nome_tabela TEXT,
-                    nome_funcao TEXT
-                )
-                RETURNS VOID AS $$
+        'function' => [
+            'ajustar_valores_comanda' => "
+                CREATE OR REPLACE FUNCTION ajustar_valores_comanda()
+                RETURNS TRIGGER AS $$
                 BEGIN
-                    EXECUTE format(
-                        'CREATE TRIGGER trigger_%I_%I
-                        BEFORE UPDATE ON %I
-                        FOR EACH ROW
-                        EXECUTE FUNCTION %I();',
-                        nome_funcao, nome_tabela, nome_tabela, nome_funcao
-                    );
+
                 END;
                 $$ LANGUAGE plpgsql;
             "
         ]
     ];
+
+    public function schemas(){
+        return $this->schemas;
+    }
+
+    public function drop($schema_type, $schema_name, $cascade = false){
+        $schema_type = strtoupper($schema_type);
+        $schema_name = strtoupper($schema_name);
+        $sql = "DROP $schema_type IF EXISTS $schema_name";
+        if ($cascade) $sql .= " CASCADE";
+        return $this->db->query($sql);
+    }
+
+    public function drop_schemas(){
+        try {
+            echo "<h1>Derrubando Banco de dados</h1>";
+            $this->db->beginTransaction();
+            foreach ($this->schemas as $schema_type => $schema_name_list) {
+                echo "<h2>Derrubando $schema_type</h2>";   
+                foreach (array_keys($schema_name_list) as $schema_name) {
+                    echo "Derrubando $schema_name<br>";
+                    $this->drop($schema_type,$schema_name, true);
+                    echo "<b style='color:green'>
+                    $schema_name derrubado
+                    </b>
+                    <br><br>";
+                }
+            }
+            $this->db->commit();
+            echo "<h1>Banco de dados derrubado com sucesso!</h1>";
+        } catch (PDOException $e) {
+            $this->db->rollback();
+            echo "<h3>Erro ao derrubar banco de dados</h3>";
+            echo "<p>".$e->getMessage()."</p>";
+        }
+    }
 
     // Função que executa as migrações
     public function migrate()

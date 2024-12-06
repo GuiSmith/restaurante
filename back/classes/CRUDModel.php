@@ -2,11 +2,13 @@
 
 require_once "Database.php";
 require_once __DIR__."/../functions.php";
+require_once 'Log.php';
 
 class CRUDModel
 {
     protected static $db;
     protected static $table; // Nome da tabela associada
+    protected static $log;
 
     public function __construct($debug = false)
     {
@@ -17,48 +19,53 @@ class CRUDModel
                 var_dump(self::$db);
             }
         }
+        if(!self::$log){
+            self::$log = Log::getInstance();
+        }
     }
 
     public function insert(array $data): bool|string
     {
-        return self::$db->insert(static::$table, $data);
+        $insert = self::$db->insert(static::$table, $data);
+        if($insert) static::$log->insert(static::$table,'INSERT',$data);
+        return $insert;
     }
 
     public function update(array $data)
     {
-        return self::$db->update(static::$table, $data);
+        $linhas_afetadas = self::$db->update(static::$table, $data);
+        if($linhas_afetadas > 0) static::$log->insert(static::$table,'UPDATE',$data);
+        return $linhas_afetadas;
     }
 
-    public function delete($condition, $params = []): bool|PDOStatement
+    public function delete($ids = []): bool|PDOStatement
     {
-        return self::$db->delete(static::$table, $condition, $params);
-    }
-
-    public function find($id): mixed
-    {
-        $sql = "SELECT * FROM " . static::$table . " WHERE id = :id";
-        $result = self::$db->fetch($sql, ['id' => $id]);
-        if($result){
-            return $result;
-        }else{
-            return new stdClass();
-        }
+        static::$log->insert(static::$table,'DELETE',['ids' => $ids]);
+        return self::$db->delete(static::$table, $ids);
     }
 
     public function all()
     {
         $sql = "SELECT * FROM " . static::$table;
         //var_dump(self::$db);
-        return self::$db->fetchAll($sql);
+        $search = self::$db->fetchAll($sql);
+        $log_dados['linhas'] = count($search);
+        static::$log->insert(static::$table,'SELECT',$log_dados);
+        return $search;
     }
 
     public function search(array $conditions = [], array $fields = [])
     {
+        //Se condições E campos forem vazios, chamar por ALL
         if (empty($conditions) && empty($fields)){
-            return $this->all();
+            $search = $this->all();
         }else{
-            return self::$db->search(static::$table, $conditions, $fields);
+            $search = self::$db->search(static::$table, $conditions, $fields);
+            $log_dados['condicoes'] = json_encode($conditions);
+            $log_dados['linhas'] = count($search);
+            static::$log->insert(static::$table,'SELECT',$log_dados);
         }
+        return $search;
     }
 }
 

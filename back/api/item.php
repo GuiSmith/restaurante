@@ -1,5 +1,5 @@
 <?php
-require_once '../classes/Usuario.php';
+require_once '../classes/Item.php';
 
 // Configurar cabeçalhos HTTP
 header("Content-Type: application/json");
@@ -14,14 +14,14 @@ $method = $_SERVER['REQUEST_METHOD'];
 $input = json_decode(file_get_contents('php://input'), true);
 
 $response = []; // Inicializa a resposta
-$usuario = new Usuario();
+$item = new Item();
 
 try {
     $response = match ($method) {
-        'GET' => $usuario->search($_GET),
-        'POST' => post( $input),
-        'PUT' => $usuario->atualizar($input),
-        'DELETE' => delete(),
+        'GET' => $item->search($_GET),
+        'POST' => $item->criar($input),
+        'PUT' => $item->atualizar($input),
+        'DELETE' => $item->deletar($_GET['id'] ?? ''),
         default => methodNotAllowed()
     };
 } catch (Exception $e) {
@@ -31,39 +31,6 @@ try {
 
 // Retornar a resposta como JSON
 echo json_encode($response);
-
-// Funções para cada método HTTP
-
-// Processa requisições POST.
-//CRIAR ou LOGIN
-function post(array $data): array
-{
-    $usuario = new Usuario();
-    if(isset($data['login']) && $data['login']){
-        return $usuario->login($data);
-    }else{
-        return $usuario->criar($data);
-    }
-}
-
-// Processa requisições DELETE
-//DELETAR ou LOGOUT
-function delete()
-{
-    $usuario_obj = new Usuario();
-
-    //Log out
-    if(isset($_GET['token'])){
-        return $usuario_obj->logout($_GET['token']);
-    }
-
-    //Deletar usuário
-    if (isset($_GET['id'])) {
-        return $usuario_obj->deletar($_GET['id']);
-    }
-
-    return criar_mensagem(false,'Informe um token para realizar logout e um id para deletar usuarios');
-}
 
 // Método não permitido
 function methodNotAllowed(): array

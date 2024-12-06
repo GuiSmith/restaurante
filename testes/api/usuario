@@ -22,7 +22,7 @@ curl -X POST "http://localhost/restaurante/back/api/usuario.php" -H "Content-Typ
 curl -X POST "http://localhost/restaurante/back/api/usuario.php" -H "Content-Type: application/json" -d '{"login":true,"email":"teste@example.com","senha":"1234567890"}'
 
 # Testar login com token - Válido
-curl -X POST "http://localhost/restaurante/back/api/usuario.php" -H "Content-Type: application/json" -d '{"login":true,"token":"9f73f433b24e4e88828f45f88c2fa024985f32cd18fadb93863956530aba70d0"}'
+curl -X POST "http://localhost/restaurante/back/api/usuario.php" -H "Content-Type: application/json" -d '{"login":true,"token":"b8e6ae9b4eefc528aa1e78272d4e870117a8f76978214126f1d80e5e383861f9"}'
 # Testar login com token - Válido
 curl -X POST "http://localhost/restaurante/back/api/usuario.php" -H "Content-Type: application/json" -d '{"login":true,"token":"9f73f433b24e4e88828f45f88c2fa024985f32cd18fadb93863956530aba70d0"}'
 
