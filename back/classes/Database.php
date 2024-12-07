@@ -60,12 +60,17 @@ class Database
         return $this->pdo->inTransaction();
     }
 
-
     public function query($sql, $params = [])
     {
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         return $stmt;
+    }
+
+    public function id_user($token) {
+        if (!is_string($token)) return null;
+        $usuario = $this->search('usuario',['token' => $token],['id']);
+        return !empty($usuario) ? $usuario[0]['id'] : null;
     }
 
     public function fetchAll($sql, $params = [])
@@ -86,7 +91,6 @@ class Database
 
         // Prepara a consulta SQL
         $sql = "SELECT $fields FROM $table $where";
-
         // Executa a consulta e retorna os resultados
         return $this->fetchAll($sql, $conditions);
     }
@@ -96,9 +100,13 @@ class Database
         $columns = implode(", ", array_keys($data));
         $placeholders = ":" . implode(", :", array_keys($data));
         $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
-        $this->query($sql, $data);
-        return $this->pdo->lastInsertId();
-    }
+        $stmt = $this->query($sql, $data);
+        if(is_bool($stmt) && $stmt == false){
+            return 0;
+        }else{
+            return $this->pdo->lastInsertId();
+        }
+    }   
 
     public function update($table, $data)
     {

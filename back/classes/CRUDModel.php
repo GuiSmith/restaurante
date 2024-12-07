@@ -38,10 +38,10 @@ class CRUDModel
         return $linhas_afetadas;
     }
 
-    public function delete($ids = []): bool|PDOStatement
+    public function delete($data = []): bool|PDOStatement
     {
-        static::$log->insert(static::$table,'DELETE',['ids' => $ids]);
-        return self::$db->delete(static::$table, $ids);
+        static::$log->insert(static::$table,'DELETE',$data);
+        return self::$db->delete(static::$table, $data['id']);
     }
 
     public function all()
@@ -60,6 +60,9 @@ class CRUDModel
         if (empty($conditions) && empty($fields)){
             $search = $this->all();
         }else{
+            if(array_key_exists('status',$conditions)){
+                $conditions['status'] = strtoupper($conditions['status']);
+            }
             $search = self::$db->search(static::$table, $conditions, $fields);
             $log_dados['condicoes'] = json_encode($conditions);
             $log_dados['linhas'] = count($search);
@@ -67,7 +70,16 @@ class CRUDModel
         }
         return $search;
     }
-}
 
+    public function status_comanda($id_comanda){
+        $search = self::$db->search('comanda',['id' => $id_comanda], ['status']);
+        return $search[0]['status'] ?? null;
+    }
+
+    public function itens_abertos($id_comanda){
+        $search = self::$db->query("SELECT verificar_itens_em_aberto($id_comanda);");
+        return $search;
+    }
+}
 
 ?>

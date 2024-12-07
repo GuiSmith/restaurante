@@ -59,7 +59,7 @@ function delete()
 
     //Deletar usuário
     if (isset($_GET['id'])) {
-        return $usuario_obj->deletar($_GET['id']);
+        return $usuario_obj->deletar($_GET);
     }
 
     return criar_mensagem(false,'Informe um token para realizar logout e um id para deletar usuarios');
@@ -69,5 +69,5 @@ function delete()
 function methodNotAllowed(): array
 {
     http_response_code(405); // Método não permitido
-    return ['ok' => false, 'mensagem' => 'Metodo nao suportado'];
+    return criar_mensagem(false, 'Metodo nao suportado');
 }

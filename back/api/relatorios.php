@@ -1,27 +1,21 @@
 <?php
-require_once '../classes/Item.php';
+require_once '../classes/Relatorios.php';
 
 // Configurar cabeçalhos HTTP
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
+header("Access-Control-Allow-Methods: GET");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 // Obter o método da requisição
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Decodificar o corpo da requisição para métodos POST e PUT
-$input = json_decode(file_get_contents('php://input'), true);
-
 $response = []; // Inicializa a resposta
-$item = new Item();
+$relatorios = new Relatorios();
 
 try {
     $response = match ($method) {
-        'GET' => $item->search($_GET),
-        'POST' => $item->criar($input),
-        'PUT' => $item->atualizar($input),
-        'DELETE' => $item->deletar($_GET),
+        'GET' => $relatorios->view($_GET['view'] ?? null),
         default => methodNotAllowed()
     };
 } catch (Exception $e) {

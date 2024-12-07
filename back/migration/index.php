@@ -6,6 +6,9 @@ require_once 'Migration.php';
 // Criando a instância de migração
 $migration = new Migration();
 
-$migration->migrate()
+if($migration->drop_schemas()){
+    $migration->migrate();
+}
+
 
 ?>

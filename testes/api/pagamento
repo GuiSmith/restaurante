@@ -1,0 +1,36 @@
+#!/bin/bash
+## CRIAR
+    # Testar POST (Criar) - Válido
+    curl -X POST "http://localhost/restaurante/back/api/pagamento.php" -H "Content-Type: application/json" -d '{
+        "id_comanda":"6",
+        "forma_pagamento":"pix",
+        "valor":"4.99"
+    }'
+
+    # Testar POST (Criar) - Inválido
+    curl -X POST "http://localhost/restaurante/back/api/pagamento.php" -H "Content-Type: application/json" -d '{
+        "descricao":"",
+        "valor":"5,78"
+    }'
+
+## LER
+
+    # Testar GET All
+    curl -X GET "http://localhost/restaurante/back/api/pagamento.php"
+
+    # Testar GET com ID = Válido
+    curl -X GET "http://localhost/restaurante/back/api/pagamento.php?id=3"
+
+    # Testar GET com ID = Inválido
+    curl -X GET "http://localhost/restaurante/back/api/pagamento.php?id=99"
+
+## DELETAR
+
+    # Testar Deleção - Válido
+    curl -X DELETE "http://localhost/restaurante/back/api/pagamento.php?id=3"
+
+    # Testar Deleção - Inválido
+    curl -X DELETE "http://localhost/restaurante/back/api/pagamento.php?id=10"
+
+    # Testar deleção sem parâmetro
+    curl -X DELETE "http://localhost/restaurante/back/api/pagamento.php"

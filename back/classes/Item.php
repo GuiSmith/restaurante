@@ -18,8 +18,15 @@ class Item extends CRUDModel
     public function criar($data)
     {
         $dados_obrigatorios = ['descricao', 'valor', 'tipo'];
+        $dados_permitidos = ['token'];
+        //Tratando vazio
+        if (empty($data)){
+            return criar_mensagem(false,'Informe os seguintes para cadastrar um item: '
+                .implode(', ', $dados_obrigatorios)
+            );
+        }
         //Retirando somente as chaves necessárias
-        $data = array_intersect_key($data, array_flip($dados_obrigatorios));
+        $data = array_intersect_key($data, array_flip(array_merge($dados_obrigatorios,$dados_permitidos)));
         //Checando vazio
         if (!array_keys_exists($data, $dados_obrigatorios)) {
             return criar_mensagem(
@@ -56,8 +63,17 @@ class Item extends CRUDModel
     public function atualizar($data){
         $dados_opcionais = ['descricao','valor','tipo','ativo','id'];
         $dados_obrigatorios = ['id'];
+        $dados_permitidos = ['token'];
+        //Tratando vazio
+        if (empty($data)){
+            return criar_mensagem(false,'Dados obrigatorios: '
+                .implode(', ', $dados_obrigatorios).". "
+                ."Dados opcionais: "
+                .implode(', ', $dados_opcionais)
+            );
+        }
         //Extraindo somente dados necessários
-        $data = array_intersect_key($data,array_flip($dados_opcionais));
+        $data = array_intersect_key($data,array_flip(array_merge($dados_opcionais,$dados_obrigatorios,$dados_permitidos)));
         //Verificando ID
         if(!isset($data['id'])){
             return criar_mensagem(false,'informe o ID para atualizar itens');
@@ -85,21 +101,33 @@ class Item extends CRUDModel
         }
     }
 
-    public function deletar(string $ids){
+    public function deletar($data){
+        $dados_obrigatorios = ['id'];
+        $dados_permitidos = ['token'];
+        //Tratando vazio
+        if (empty($data)){
+            return criar_mensagem(false,'ID e necessario para deletar usuarios');
+        }
+        //Retirando dados necessários
+        $data = array_intersect_key($data,array_flip(array_merge($dados_obrigatorios,$dados_permitidos)));
         //Verificando IDs
-        if(empty($ids)){
-            return criar_mensagem(false,'ID e necessario para deletar itens');
+        if(!isset($data['id'])){
+            return criar_mensagem(false,'ID e necessario para deletar usuarios');
         }
         //Deletando
         try{
-            $ids = explode(',',$ids);
-            if($this->delete($ids)){
-                return criar_mensagem(true,'itens deletados com sucesso');
+            $data['id'] = explode(',',$data['id']);
+            if($this->delete($data)){
+                return criar_mensagem(true,'Registro deletado com sucesso');
             }else{
-                return criar_mensagem(false,'nenhum registro encontrado com ids fornecidos');
+                return criar_mensagem(false,'Nenhum registro encontrado com ids fornecidos');
             }
         } catch(Exception $e){
-            return criar_mensagem(false,$e->getMessage());
+            if($e->getCode() == 23503){
+                return criar_mensagem(false, "Nao e possivel deletar $this->table pois outros registros dependem deste");
+            }else{
+                return criar_mensagem(false, $e->getMessage());
+            }
         }
     }
 }

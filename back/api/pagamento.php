@@ -1,10 +1,10 @@
 <?php
-require_once '../classes/Item.php';
+require_once '../classes/Pagamento.php';
 
 // Configurar cabeçalhos HTTP
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
+header("Access-Control-Allow-Methods: GET, POST, DELETE");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 // Obter o método da requisição
@@ -14,14 +14,13 @@ $method = $_SERVER['REQUEST_METHOD'];
 $input = json_decode(file_get_contents('php://input'), true);
 
 $response = []; // Inicializa a resposta
-$item = new Item();
+$pagamento = new Pagamento();
 
 try {
     $response = match ($method) {
-        'GET' => $item->search($_GET),
-        'POST' => $item->criar($input),
-        'PUT' => $item->atualizar($input),
-        'DELETE' => $item->deletar($_GET),
+        'GET' => $pagamento->search($_GET),
+        'POST' => $pagamento->criar($input),
+        'DELETE' => $pagamento->deletar($_GET),
         default => methodNotAllowed()
     };
 } catch (Exception $e) {

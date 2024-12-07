@@ -1,5 +1,5 @@
 <?php
-require_once '../classes/Item.php';
+require_once '../classes/Comanda.php';
 
 // Configurar cabeçalhos HTTP
 header("Content-Type: application/json");
@@ -14,14 +14,14 @@ $method = $_SERVER['REQUEST_METHOD'];
 $input = json_decode(file_get_contents('php://input'), true);
 
 $response = []; // Inicializa a resposta
-$item = new Item();
+$comanda = new comanda();
 
 try {
     $response = match ($method) {
-        'GET' => $item->search($_GET),
-        'POST' => $item->criar($input),
-        'PUT' => $item->atualizar($input),
-        'DELETE' => $item->deletar($_GET),
+        'GET' => $comanda->search($_GET),
+        'POST' => $comanda->abrir($input),
+        'PUT' => $comanda->fechar($input),
+        'DELETE' => $comanda->deletar($_GET),
         default => methodNotAllowed()
     };
 } catch (Exception $e) {

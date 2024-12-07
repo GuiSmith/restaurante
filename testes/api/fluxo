@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# Criar item
+    # Prato
+    curl -X POST "http://localhost/restaurante/back/api/item.php" -H "Content-Type: application/json" -d '{
+        "descricao":"Coxinha",
+        "valor":"5.99",
+        "tipo":"prato"
+    }'
+    # Bebida
+    curl -X POST "http://localhost/restaurante/back/api/item.php" -H "Content-Type: application/json" -d '{
+        "descricao":"Champanhe",
+        "valor":"99.99",
+        "tipo":"bebida"
+    }'
+
+# Abrir comanda
+    curl -X POST "http://localhost/restaurante/back/api/comanda.php"
+
+# Criar item da comanda
+    # Prato
+    curl -X POST "http://localhost/restaurante/back/api/itemcomanda.php" -H "Content-Type: application/json" -d '{
+        "id_comanda":"1",
+        "id_item":"1",
+        "quantidade":"2"
+    }'
+    # Bebida
+    curl -X POST "http://localhost/restaurante/back/api/itemcomanda.php" -H "Content-Type: application/json" -d '{
+        "id_comanda":"1",
+        "id_item":"2",
+        "quantidade":"1"
+    }'
+
+# Fechar comanda - falha pois ha itens em aberto
+    curl -X PUT "http://localhost/restaurante/back/api/comanda.php"  -H 'Content-type: application/json' -d '{
+        "id": "1"
+    }'
+
+# Fechar item da comanda
+    # Prato
+    curl -X PUT "http://localhost/restaurante/back/api/itemcomanda.php" -H "Content-Type: application/json" -d '{
+        "id":"1",
+        "status":"ENTREGUE"
+    }'
+    # Bebida
+    curl -X PUT "http://localhost/restaurante/back/api/itemcomanda.php" -H "Content-Type: application/json" -d '{
+        "id":"2",
+        "status":"ENTREGUE"
+    }'
+
+# Fechar comanda - sucesso
+    curl -X PUT "http://localhost/restaurante/back/api/comanda.php"  -H 'Content-type: application/json' -d '{
+        "id": "1"
+    }'
+
+# Pagamento
+    curl -X POST "http://localhost/restaurante/back/api/pagamento.php" -H "Content-Type: application/json" -d '{
+        "id_comanda":"1",
+        "forma_pagamento":"pix",
+        "valor":"100.00"
+    }'

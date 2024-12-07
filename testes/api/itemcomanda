@@ -1,0 +1,49 @@
+#!/bin/bash
+## CRIAR
+    # Testar POST (Criar) - Válido
+    curl -X POST "http://localhost/restaurante/back/api/itemcomanda.php" -H "Content-Type: application/json" -d '{
+        "id_comanda":"6",
+        "id_item":"1",
+        "quantidade":"3"
+    }'
+    curl -X POST "http://localhost/restaurante/back/api/itemcomanda.php" -H "Content-Type: application/json" -d '{
+        "id_comanda":"6",
+        "id_item":"2",
+        "quantidade":"2"
+    }'
+    # Testar POST (Criar) - Invalido
+    curl -X POST "http://localhost/restaurante/back/api/itemcomanda.php"
+
+## LER
+
+    # Testar GET All
+    curl -X GET "http://localhost/restaurante/back/api/itemcomanda.php"
+
+    # Testar GET com ID = Válido
+    curl -X GET "http://localhost/restaurante/back/api/itemcomanda.php?id=2"
+
+    # Testar GET com ID = Inválido
+    curl -X GET "http://localhost/restaurante/back/api/itemcomanda.php?id=99"
+
+## EDITAR
+
+    # Testar PUT (Editar) - Válido
+    #Fecha itemcomanda
+    curl -X PUT "http://localhost/restaurante/back/api/itemcomanda.phpid=2"
+
+    curl -X PUT "http://localhost/restaurante/back/api/itemcomanda.php" -H "Content-Type: application/json" -d '{
+        "id":"1",
+        "id_item":"2",
+        "quantidade":"2"
+    }'
+
+## DELETAR
+
+    # Testar Deleção - Válido
+    curl -X DELETE "http://localhost/restaurante/back/api/itemcomanda.php?id=2"
+
+    # Testar Deleção - Inválido
+    curl -X DELETE "http://localhost/restaurante/back/api/itemcomanda.php?id=10"
+
+    # Testar deleção sem parâmetro
+    curl -X DELETE "http://localhost/restaurante/back/api/itemcomanda.php"

@@ -18,21 +18,14 @@ class Log {
         return self::$instance;
     }
 
-    public static function insert($table,$operation,$data){
+    public static function insert($table,$operation,$data, $token = null){
         $dados_obrigatorios = ['tabela','operacao','registro'];
         //Retirando Token do registro
-        if(in_array('token',$data)){
-            $usuario = static::$db->search('usuario',['token' => $data['token']],['id'])[0];
-            $id_usuario = $usuario['id'];
-        }else{
-            $id_usuario = null;
-        }
         //Criando dados para inserir
         $dados = [
             'tabela' => $table,
             'operacao' => $operation,
-            'registro' => json_encode($data),
-            'id_usuario' => $id_usuario
+            'registro' => json_encode($data)
         ];
         //Definindo conteúdo de registros
         if($operation != 'DELETE'){
@@ -40,7 +33,7 @@ class Log {
         }else{
             //Se não encontrou registros com os IDs a serem deletados, não inserir logs
             $rows = [];
-            foreach ($data['ids'] as $id) {
+            foreach ($data['id'] as $id) {
                 $rows[] = self::$db->search($table,['id' => (int)$id]);
             }
             if (count($rows) > 0){
@@ -56,6 +49,23 @@ class Log {
             echo "Erro ao inserir log: ".$e->getMessage();
         }
 
+    }
+
+    public function all(){
+        $sql = "SELECT * FROM " . static::$table;
+        //var_dump(self::$db);
+        return self::$db->fetchAll($sql);
+    }
+
+    public function search(array $conditions = [], array $fields = [])
+    {
+        //Se condições E campos forem vazios, chamar por ALL
+        if (empty($conditions) && empty($fields)){
+            $search = $this->all();
+        }else{
+            $search = self::$db->search(static::$table, $conditions, $fields);
+        }
+        return $search;
     }
 
 }
