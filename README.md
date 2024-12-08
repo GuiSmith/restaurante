@@ -1,6 +1,12 @@
 # Projeto Restaurante - Configuração e Migrações
 
-Este projeto tem como objetivo gerenciar o sistema de restaurante, com tabelas de **usuários**, **itens de cardápio**, **comandas**, **pedidos**, **pagamentos**, entre outros. Este README fornece instruções para instalar e configurar o ambiente no **Ubuntu** e executar as migrações para criar o banco de dados e tabelas necessárias.
+## REQUISITOS
+• Cadastro de itens do cardápio:
+• Permitir abrir e fechar comandas
+• Permitir adicionar itens do cardápio em uma comanda
+• Enviar Ordens de Produção para Copa e Cozinha
+• Relatório de vendas diária
+• Cadastro de usuários
 
 ## Estrutura do Projeto
 
@@ -55,11 +61,7 @@ restaurante/
 ├── README.md
 ```
 
-- **back/**: Contém o código PHP responsável pelas funcionalidades do sistema (APIs, migrações, funções auxiliares e classes principais).
-- **banco.sql**: Contém o arquivo SQL com os comandos para criação de banco de dados e tabelas.
-- **diagramas/**: Contém os diagramas do banco de dados.
-- **testes/**: Contém scripts e ferramentas para teste do sistema.
-- **README.md**: Este arquivo de documentação.
+
 
 ---
 
