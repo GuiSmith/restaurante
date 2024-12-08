@@ -61,8 +61,105 @@ restaurante/
 ├── README.md
 ```
 
+# Caminhos da API
 
+Aqui você verá os caminhos disponíveis para interagir com a API do sistema de restaurante. Para cada requisito, temos o caminho correspondente e exemplos de requisições utilizando `cURL` para facilitar os testes.
 
+## Cadastro de Itens do Cardápio
+- **Caminho:** `restaurante/back/api/item.php`
+- **Caminho para Testes CURL:** `restaurante/testes/api/item`
+
+### Exemplo de Requisição
+Cadastrar um item no cardápio:
+```bash
+curl -X POST "http://localhost/restaurante/back/api/item.php" \
+-H "Content-Type: application/json" \
+-d '{
+    "descricao": "Coxinha",
+    "valor": "5.99",
+    "tipo": "prato"
+}'
+```
+
+## Abrir e Fechar Comandas
+- **Caminho:** `restaurante/back/api/comanda.php`
+- **Caminho para Testes CURL:** `restaurante/testes/api/comanda`
+
+### Exemplos de Requisições
+Abrir uma comanda:
+```bash
+curl -X POST "http://localhost/restaurante/back/api/comanda.php"
+```
+
+Fechar uma comanda:
+```bash
+curl -X PUT "http://localhost/restaurante/back/api/comanda.php" \
+-H "Content-Type: application/json" \
+-d '{
+    "id": "3"
+}'
+```
+
+## Adicionar Itens do Cardápio em uma Comanda
+- **Caminho:** `restaurante/back/api/itemcomanda.php`
+- **Caminho para Testes CURL:** `restaurante/testes/api/itemcomanda`
+
+### Exemplos de Requisições
+Adicionar um item na comanda:
+```bash
+curl -X POST "http://localhost/restaurante/back/api/itemcomanda.php" \
+-H "Content-Type: application/json" \
+-d '{
+    "id_comanda": "6",
+    "id_item": "1",
+    "quantidade": "3"
+}'
+```
+
+Atualizar o status de um item na comanda:
+```bash
+curl -X PUT "http://localhost/restaurante/back/api/itemcomanda.php" \
+-H "Content-Type: application/json" \
+-d '{
+    "id": "1",
+    "status": "pronto"
+}'
+```
+
+## Enviar Ordens de Produção para Copa e Cozinha
+- **Caminho:** `restaurante/back/api/relatorios.php`
+- **Caminho para Testes CURL:** `restaurante/testes/api/relatorios`
+
+### Exemplos de Requisições
+Obter ordens de produção para a cozinha:
+```bash
+curl -X GET "http://localhost/restaurante/back/api/relatorios.php?view=ordens_producao_cozinha"
+```
+
+Obter ordens de produção para a copa:
+```bash
+curl -X GET "http://localhost/restaurante/back/api/relatorios.php?view=ordens_producao_copa"
+```
+
+## Relatório de Vendas Diária
+- **Caminho:** `restaurante/back/api/relatorios.php`
+- **Caminho para Testes CURL:** `restaurante/testes/api/relatorios`
+
+## Cadastro de Usuários
+- **Caminho:** `restaurante/back/api/usuario.php`
+- **Caminho para Testes CURL:** `restaurante/testes/api/usuario`
+
+### Exemplo de Requisição
+Criar um usuário:
+```bash
+curl -X POST "http://localhost/restaurante/back/api/usuario.php" \
+-H "Content-Type: application/json" \
+-d '{
+    "nome": "João Silva",
+    "email": "joao.silva@email.com",
+    "senha": "123456"
+}'
+```
 ---
 
 ## Requisitos
@@ -199,7 +296,35 @@ Agora, a aplicação deve estar configurada e as migrações aplicadas corretame
 ## Problemas Comuns
 
 - **Acesso Negado**: Se você encontrar um erro de "Acesso negado", verifique as permissões do usuário no PostgreSQL e a configuração do `pg_hba.conf`.
-- **Dependências PHP**: Se você tiver problemas com dependências PHP, execute `composer install` para garantir que todas as dependências sejam instaladas corretamente.
 - **Erros de Migração**: Se a migração falhar, verifique os logs de erros ou os detalhes da consulta SQL no arquivo de migração.
+- **Erro de configuração do servidor**: Se aparecer uma mensagem dizendo que o servidor apache não foi configurado da forma correta, dever ser porque ele não está aceitando o arquivo .htaccess que permite métodos HTTP específicos dessa aplicação. Veja a seguir como resolver:
 
+Para usar arquivos `.htaccess` no Apache, siga estas instruções:
+
+1. **Certifique-se de que o módulo `mod_rewrite` esteja ativado**:
+   Execute o seguinte comando para habilitar o módulo de reescrita:
+   ```bash
+   sudo a2enmod rewrite
+   ```
+
+2. **Permitir uso de `.htaccess` na configuração do Apache**:
+   Edite o arquivo de configuração do Apache relacionado ao seu site. Geralmente, este arquivo está em `/etc/apache2/sites-available/`. Por exemplo:
+   ```bash
+   sudo nano /etc/apache2/sites-available/000-default.conf
+   ```
+   Encontre a seção `<Directory>` correspondente ao diretório raiz do seu site (geralmente `/var/www/html/`) e altere o valor da diretiva `AllowOverride` para `All`:
+   ```apache
+   <Directory /var/www/html/>
+       AllowOverride All
+   </Directory>
+   ```
+
+3. **Reinicie o Apache**:
+   Após as alterações, reinicie o Apache para aplicar as configurações:
+   ```bash
+   sudo systemctl restart apache2
+   ```
+
+4. **Criar o arquivo `.htaccess`**:
+   Agora você pode criar e usar um arquivo `.htaccess` no diretório raiz do seu site (`/var/www/html/` ou o caminho configurado).
 ---

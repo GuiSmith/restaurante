@@ -3,10 +3,6 @@
     # Testar POST (Criar) - Válido
     curl -X POST "http://localhost/restaurante/back/api/comanda.php"
     
-    # Testar POST (Criar) - Válido com token
-    curl -X POST "http://localhost/restaurante/back/api/comanda.php" -H 'Content-type: application/json' -d '{
-        "token": "c5fe6e39f403038bbb39a3d7ea6b6cdcfa7eceb831d522b10cbad7f8ca39e8fe"
-    }'
 
 ## LER
 
