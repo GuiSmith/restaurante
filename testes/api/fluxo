@@ -31,6 +31,10 @@
         "quantidade":"1"
     }'
 
+# Ordens de pedidos
+    # Geral
+    curl -X GET "http://localhost/restaurante/back/api/relatorios.php"
+
 # Fechar comanda - falha pois ha itens em aberto
     curl -X PUT "http://localhost/restaurante/back/api/comanda.php"  -H 'Content-type: application/json' -d '{
         "id": "1"

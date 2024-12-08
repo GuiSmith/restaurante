@@ -78,6 +78,10 @@ class Database
         return $this->query($sql, $params)->fetchAll();
     }
 
+    public function select_all($table){
+        return $this->query("SELECT * FROM $table")->fetchAll();
+    }
+
     public function search($table, $conditions = [], $fields = [])
     {
         // Se $fields for um array, converte para uma string separada por vírgulas

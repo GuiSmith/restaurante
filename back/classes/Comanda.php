@@ -19,7 +19,7 @@ class Comanda extends CRUDModel
         //Retirando dados desnecessários
         $data = !empty($data) ? array_intersect_key($data,array_flip($dados_permitidos)) : [];
         //Definindo status de comanda para aberta
-        $data['status'] = 'ABERTA';
+        $data['status'] = 'aberta';
         try {
             $id = $this->insert($data);
             return criar_mensagem(true, 'Comanda aberta com sucesso.', ['id' => $id]);
@@ -36,11 +36,12 @@ class Comanda extends CRUDModel
         if (!isset($data['id'])) {
             return criar_mensagem(false, 'Informe o ID para fechar a comanda.');
         }
-        if($this->itens_abertos($data['id'])){
+        $itens_abertos = $this->itens_abertos($data['id']); 
+        if($itens_abertos){
             return criar_mensagem(false, 'Nao e possivel fechar comanda pois ha itens em aberto');
         }
         try {
-            $data['status'] = 'FECHADA';
+            $data['status'] = 'fechada';
             $linhas_afetadas = $this->update($data);
             if($linhas_afetadas > 0){
                 return criar_mensagem(true,'Comanda fechada');

@@ -6,7 +6,7 @@ class ItemComanda extends CRUDModel
 {
     protected static $table = 'item_comanda';
 
-    protected static $status = ['CADASTRADO','CONFIRMADO','PRONTO','ENTREGUE'];
+    protected static $status = ['cadastrado','confirmado','pronto','entregue'];
 
     public function __construct($debug = false)
     {
@@ -58,10 +58,10 @@ class ItemComanda extends CRUDModel
             if(empty($data['status']) || !in_array($data['status'],static::$status)){
                 return criar_mensagem(false, 'Status invalido, informe um destes: '.implode(', ',array_map('strtolower',static::$status)));
             }else{
-                $data['status'] = strtoupper($data['status']);
+                $data['status'] = strtolower($data['status']);
             }
         }else{
-            $data['status'] = 'CADASTRADO';
+            $data['status'] = 'cadastrado';
         }
         // Descontos (opcional)
         if (isset($data['descontos'])) {
@@ -116,7 +116,7 @@ class ItemComanda extends CRUDModel
         }
         // Status (opcional)
         if (isset($data['status'])) {
-            $data['status'] = strtoupper($data['status']);
+            $data['status'] = strtolower($data['status']);
             if (empty($data['status']) || !in_array($data['status'],static::$status)){
                 return criar_mensagem(false, 'Status invalido, informe um destes: '.implode(', ',array_map('strtolower',static::$status)));
             }

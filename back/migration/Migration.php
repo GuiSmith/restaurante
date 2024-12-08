@@ -18,7 +18,7 @@ class Migration
                 CREATE TYPE crud AS ENUM ('INSERT', 'SELECT', 'UPDATE', 'DELETE');
             ",
             'comanda_status' => "
-                CREATE TYPE comanda_status AS ENUM ('ABERTA', 'FECHADA');
+                CREATE TYPE comanda_status AS ENUM ('aberta', 'fechada');
             "
         ],
         'table' => [
@@ -174,33 +174,25 @@ class Migration
                 CREATE OR REPLACE FUNCTION atualizar_comanda_em_pagamento()
                 RETURNS TRIGGER AS $$
                 DECLARE
-                    total_recebido DECIMAL(10,2);
+                    var_comanda RECORD;
                 BEGIN
                     IF (TG_OP = 'DELETE') THEN
-                        SELECT COALESCE(SUM(p.valor), 0)
-                        INTO total_recebido
-                        FROM pagamento p 
-                        JOIN comanda c ON p.id_comanda = c.id
-                        WHERE p.id_comanda = OLD.id_comanda;
-
                         UPDATE comanda
                         SET
-                            valor_recebido = total_recebido
+                            valor_recebido = valor_recebido - OLD.valor
                         WHERE id = OLD.id_comanda;
                     ELSE
-                        SELECT COALESCE(SUM(p.valor), 0)
-                        INTO total_recebido
-                        FROM pagamento p 
-                        JOIN comanda c ON p.id_comanda = c.id
-                        WHERE p.id_comanda = NEW.id_comanda;
+                        SELECT c.valor_recebido, c.valor_total
+                        INTO var_comanda
+                        FROM comanda AS c
+                        WHERE c.id = NEW.id_comanda;
 
-                        IF total_recebido > (SELECT valor_total FROM comanda WHERE id = NEW.id_comanda) THEN
+                        IF var_comanda.valor_recebido + NEW.valor > var_comanda.valor_total THEN
                             RAISE EXCEPTION 'Valor recebido ira ultrapassar valor total da comanda' USING ERRCODE = 'P0001';
                         ELSE
                             UPDATE comanda
-                            SET
-                                valor_recebido = total_recebido
-                            WHERE id = NEW.id_comanda;
+                            SET valor_recebido = valor_recebido + NEW.valor
+                            WHERE comanda.id = NEW.id_comanda;
                         END IF;
                     END IF;
                     RETURN NEW;
@@ -211,7 +203,7 @@ class Migration
                 CREATE OR REPLACE FUNCTION atualizar_data_fechamento_comanda()
                 RETURNS TRIGGER AS $$
                 BEGIN
-                    IF NEW.status = 'FECHADA' THEN
+                    IF NEW.status = 'fechada' THEN
                         NEW.data_hora_fechamento = NOW();
                     END IF;
                     RETURN NEW;
@@ -229,7 +221,7 @@ class Migration
                     INTO itens_abertos
                     FROM item_comanda
                     WHERE item_comanda.id_comanda = p_id_comanda
-                    AND (status IS NULL OR status != 'ENTREGUE')
+                    AND (status IS NULL OR status <> 'entregue')
                     AND quantidade > 0;
 
                     -- Se houver itens abertos, retorna TRUE, caso contrário, FALSE
@@ -258,7 +250,7 @@ class Migration
             ",
             "trigger_atualizar_comanda_em_pagamento" => "
                 CREATE OR REPLACE TRIGGER trigger_atualizar_comanda_em_pagamento
-                AFTER INSERT OR UPDATE OR DELETE ON pagamento
+                BEFORE INSERT OR DELETE ON pagamento
                 FOR EACH ROW
                 EXECUTE FUNCTION atualizar_comanda_em_pagamento();
             ",
@@ -271,47 +263,47 @@ class Migration
         ],
         'view' => [
             'ordens_producao' => "
-                CREATE OR REPLACE VIEW ordens_producao AS
-                SELECT 
-                    ic.id AS id_item_comanda,
-                    i.descricao AS item,
-                    CASE 
-                        WHEN i.tipo = 'prato' THEN 'COZINHA'
-                        WHEN i.tipo = 'bebida' THEN 'COPA'
+                CREATE VIEW ordens_producao AS
+                SELECT
+                    ic.id,
+                    ic.id_comanda,
+                    CASE
+                        WHEN i.tipo = 'bebida' THEN 'copa'
+                        WHEN i.tipo = 'prato' THEN 'cozinha'
                         ELSE i.tipo
-                    END AS destino,
+                        END AS destino,
+                    i.descricao,
                     ic.quantidade,
-                    ic.status,
-                    ic.data_hora_cadastro AS data_pedido
-                FROM 
-                    item_comanda ic
-                INNER JOIN 
-                    item i ON ic.id_item = i.id
-                WHERE 
-                    ic.status != 'entregue'
-                ORDER BY 
-                    i.tipo, ic.status, ic.data_hora_cadastro;
+                    i.valor AS valor_unitario,
+                    i.valor * ic.quantidade AS sub_total,
+                    ic.data_hora_cadastro,
+                    ic.descontos,
+                    ic.isento
+                FROM item_comanda AS ic
+                JOIN item AS i
+                ON ic.id_item = i.id
+                WHERE ic.status <> 'entregue';
             ",
             'ordens_producao_cozinha' => "
-                CREATE OR REPLACE VIEW ordens_producao AS
+                CREATE OR REPLACE VIEW ordens_producao_cozinha AS
                 SELECT 
                     *
                 FROM 
                     ordens_producao
                 WHERE 
-                    destino = 'COZINHA';
+                    destino = 'cozinha';
             ",
             'ordens_producao_copa' => "
-                CREATE OR REPLACE VIEW ordens_producao AS
+                CREATE OR REPLACE VIEW ordens_producao_copa AS
                 SELECT 
                     *
                 FROM 
                     ordens_producao
                 WHERE 
-                    destino = 'COPA';
+                    destino = 'copa';
             ",
             'vendas_do_dia' => "
-                CREATE OR REPLACE VIEW relatorio_vendas_diarias AS
+                CREATE OR REPLACE VIEW vendas_do_dia AS
                 SELECT 
                     c.id AS id_comanda,
                     c.data_hora_abertura,

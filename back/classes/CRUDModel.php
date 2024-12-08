@@ -78,7 +78,7 @@ class CRUDModel
 
     public function itens_abertos($id_comanda){
         $search = self::$db->query("SELECT verificar_itens_em_aberto($id_comanda);");
-        return $search;
+        return $search->fetch()['verificar_itens_em_aberto'];
     }
 }
 

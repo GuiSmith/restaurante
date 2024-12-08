@@ -54,7 +54,7 @@ class Pagamento extends CRUDModel
             //Formata o valor para retornar como 00.00
             $data['valor'] = normalizar_valor($data['valor']);
         }
-        if($this->status_comanda($data['id_comanda']) != 'FECHADA'){
+        if($this->status_comanda($data['id_comanda']) != 'fechada'){
             return criar_mensagem(false, 'Comanda nao esta fechada, feche-a para continuar');
         }
         //Criando item
