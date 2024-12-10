@@ -279,7 +279,7 @@ O resultado deve ser uma lista de views, relatórios disponíveis.
 
 ## Passo 7: Conectar a Aplicação ao Banco de Dados
 
-No código da aplicação, garanta que as configurações de conexão com o banco de dados PostgreSQL estejam corretas. No seu arquivo de configuração, como `config.php`, os detalhes devem ser semelhantes a este:
+No código da aplicação, garanta que as configurações de conexão com o banco de dados PostgreSQL estejam corretas. No seu arquivo de configuração, como `Database.php`, os detalhes devem ser semelhantes a este:
 
 ```php
 $dsn = "pgsql:host=localhost;port=5432;dbname=restaurante;user=smith;password=sua_senha";

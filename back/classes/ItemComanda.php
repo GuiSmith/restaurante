@@ -57,11 +57,7 @@ class ItemComanda extends CRUDModel
         if (isset($data['status'])) {
             if(empty($data['status']) || !in_array($data['status'],static::$status)){
                 return criar_mensagem(false, 'Status invalido, informe um destes: '.implode(', ',array_map('strtolower',static::$status)));
-            }else{
-                $data['status'] = strtolower($data['status']);
             }
-        }else{
-            $data['status'] = 'cadastrado';
         }
         // Descontos (opcional)
         if (isset($data['descontos'])) {

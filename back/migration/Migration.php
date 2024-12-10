@@ -18,7 +18,10 @@ class Migration
                 CREATE TYPE crud AS ENUM ('INSERT', 'SELECT', 'UPDATE', 'DELETE');
             ",
             'comanda_status' => "
-                CREATE TYPE comanda_status AS ENUM ('aberta', 'fechada');
+                CREATE TYPE comanda_status AS ENUM ('ABERTA', 'FECHADA');
+            ",
+            'item_comanda_status' => "
+                CREATE TYPE item_comanda_status AS ENUM ('CADASTRADO','CONFIRMADO','PRONTO','ENTREGUE');
             "
         ],
         'table' => [
@@ -72,7 +75,7 @@ class Migration
                     id_item INT NOT NULL,
                     id_comanda INT NOT NULL,
                     quantidade INT NOT NULL CHECK (quantidade > 0),
-                    status VARCHAR(100),
+                    status item_comanda_status DEFAULT 'CADASTRADO',
                     data_hora_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     descontos DECIMAL(10,2) DEFAULT 0.00,
                     isento BOOLEAN DEFAULT FALSE,
@@ -94,7 +97,7 @@ class Migration
                 CREATE TABLE IF NOT EXISTS log_item_comanda(
                     id SERIAL PRIMARY KEY,
                     id_item_comanda INT NOT NULL,
-                    status VARCHAR(100),
+                    status item_comanda_status,
                     data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
             "
@@ -203,7 +206,7 @@ class Migration
                 CREATE OR REPLACE FUNCTION atualizar_data_fechamento_comanda()
                 RETURNS TRIGGER AS $$
                 BEGIN
-                    IF NEW.status = 'fechada' THEN
+                    IF NEW.status = 'FECHADA' THEN
                         NEW.data_hora_fechamento = NOW();
                     END IF;
                     RETURN NEW;
@@ -221,7 +224,7 @@ class Migration
                     INTO itens_abertos
                     FROM item_comanda
                     WHERE item_comanda.id_comanda = p_id_comanda
-                    AND (status IS NULL OR status <> 'entregue')
+                    AND (status IS NULL OR status <> 'ENTREGUE')
                     AND quantidade > 0;
 
                     -- Se houver itens abertos, retorna TRUE, caso contrário, FALSE
@@ -282,7 +285,7 @@ class Migration
                 FROM item_comanda AS ic
                 JOIN item AS i
                 ON ic.id_item = i.id
-                WHERE ic.status <> 'entregue';
+                WHERE ic.status <> 'ENTREGUE';
             ",
             'ordens_producao_cozinha' => "
                 CREATE OR REPLACE VIEW ordens_producao_cozinha AS

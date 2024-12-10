@@ -26,6 +26,9 @@ class CRUDModel
 
     public function insert(array $data): bool|string
     {
+        if(isset($data['status'])) {
+            $data['status'] = strtoupper($data['status']);
+        }
         $insert = self::$db->insert(static::$table, $data);
         if($insert) static::$log->insert(static::$table,'INSERT',$data);
         return $insert;
@@ -33,6 +36,9 @@ class CRUDModel
 
     public function update(array $data)
     {
+        if(isset($data['status'])) {
+            $data['status'] = strtoupper($data['status']);
+        }
         $linhas_afetadas = self::$db->update(static::$table, $data);
         if($linhas_afetadas > 0) static::$log->insert(static::$table,'UPDATE',$data);
         return $linhas_afetadas;
@@ -48,10 +54,7 @@ class CRUDModel
     {
         $sql = "SELECT * FROM " . static::$table;
         //var_dump(self::$db);
-        $search = self::$db->fetchAll($sql);
-        $log_dados['linhas'] = count($search);
-        static::$log->insert(static::$table,'SELECT',$log_dados);
-        return $search;
+        return self::$db->fetchAll($sql);
     }
 
     public function search(array $conditions = [], array $fields = [])
@@ -64,9 +67,6 @@ class CRUDModel
                 $conditions['status'] = strtoupper($conditions['status']);
             }
             $search = self::$db->search(static::$table, $conditions, $fields);
-            $log_dados['condicoes'] = json_encode($conditions);
-            $log_dados['linhas'] = count($search);
-            static::$log->insert(static::$table,'SELECT',$log_dados);
         }
         return $search;
     }
