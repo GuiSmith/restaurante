@@ -71,14 +71,24 @@ class CRUDModel
         return $search;
     }
 
+    // Retorna o status de uma comanda específica
     public function status_comanda($id_comanda){
         $search = self::$db->search('comanda',['id' => $id_comanda], ['status']);
         return $search[0]['status'] ?? null;
     }
 
+    // Verifica se uma comanda específica tem itens em aberto
     public function itens_abertos($id_comanda){
-        $search = self::$db->query("SELECT verificar_itens_em_aberto($id_comanda);");
+        $sql = "SELECT verificar_itens_em_aberto($id_comanda);";
+        $search = self::$db->query($sql);
         return $search->fetch()['verificar_itens_em_aberto'];
+    }
+
+    //Retorna os valores de um tipo ENUM do banco de dados
+    public function enum_valores($type){
+        $sql = "SELECT enum_range(NULL::$type)";
+        $values_string = self::$db->query($sql)->fetch()['enum_range'];
+        return explode(',', trim($values_string, '{}'));
     }
 }
 

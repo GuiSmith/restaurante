@@ -32,6 +32,13 @@
     # Testar PUT (Atualizar) - Inválido
     curl -X PUT "http://localhost/restaurante/back/api/item.php" -H "Content-Type: application/json" -d '{"descricao":"Teste Atualizado"}'
 
+    # Testar PUT (Atualizar) - Inválido
+    curl -X PUT "http://localhost/restaurante/back/api/item.php" -H "Content-Type: application/json" -d '{
+        "id":"44"
+        "descricao":"Teste Atualizado"
+        "tipo":"ui ui"
+    }'
+
 ## DELETAR
 
     # Testar Deleção - Válido

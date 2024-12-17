@@ -24,9 +24,18 @@ try {
         'DELETE' => $item->deletar($_GET),
         default => methodNotAllowed()
     };
+    if(isset($response['status'])){
+        http_response_code($response['status']);
+    }else{
+        if(isset($response['ok'])){
+            http_response_code( $response['ok'] ? 200 : 400);
+        }else{
+            http_response_code(200);
+        }
+    }
 } catch (Exception $e) {
     http_response_code(500); // Erro interno do servidor
-    $response = criar_mensagem(false,'Erro interno: '.$e->getMessage());
+    $response = criar_mensagem(false,'Erro interno: '.$e->getMessage(),['GET' => $_GET, 'POST' => $_POST]);
 }
 
 // Retornar a resposta como JSON

@@ -17,6 +17,9 @@ class Migration
             'crud' => "
                 CREATE TYPE crud AS ENUM ('INSERT', 'SELECT', 'UPDATE', 'DELETE');
             ",
+            "item_tipos" => "
+                CREATE TYPE item_tipos AS ENUM ('BEBIDA','PRATO');
+            ",
             'comanda_status' => "
                 CREATE TYPE comanda_status AS ENUM ('ABERTA', 'FECHADA');
             ",
@@ -53,7 +56,7 @@ class Migration
                     id SERIAL PRIMARY KEY,
                     descricao VARCHAR(255) NOT NULL,
                     valor DECIMAL(10, 2) NOT NULL,
-                    tipo VARCHAR(20) NOT NULL,
+                    tipo item_tipos NOT NULL,
                     ativo BOOLEAN DEFAULT TRUE,
                     data_hora_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
@@ -271,9 +274,9 @@ class Migration
                     ic.id,
                     ic.id_comanda,
                     CASE
-                        WHEN i.tipo = 'bebida' THEN 'copa'
-                        WHEN i.tipo = 'prato' THEN 'cozinha'
-                        ELSE i.tipo
+                        WHEN i.tipo = 'BEBIDA' THEN 'COPA'
+                        WHEN i.tipo = 'PRATO' THEN 'COZINHA'
+                        ELSE i.tipo::TEXT
                         END AS destino,
                     i.descricao,
                     ic.quantidade,
@@ -294,7 +297,7 @@ class Migration
                 FROM 
                     ordens_producao
                 WHERE 
-                    destino = 'cozinha';
+                    destino = 'COZINHA';
             ",
             'ordens_producao_copa' => "
                 CREATE OR REPLACE VIEW ordens_producao_copa AS
@@ -303,7 +306,7 @@ class Migration
                 FROM 
                     ordens_producao
                 WHERE 
-                    destino = 'copa';
+                    destino = 'COPA';
             ",
             'vendas_do_dia' => "
                 CREATE OR REPLACE VIEW vendas_do_dia AS
@@ -373,9 +376,7 @@ class Migration
                 foreach (array_keys($schema_name_list) as $schema_name) {
                     echo "Derrubando $schema_name<br>";
                     $this->drop($schema_type,$schema_name, true);
-                    echo "<b style='color:green'>
-                    $schema_name derrubado
-                    </b>
+                    echo "<b style='color:green'> $schema_name derrubado</b>
                     <br><br>";
                 }
             }
@@ -401,12 +402,13 @@ class Migration
                 echo "<h2>Criando '$schema_type'...</h2>";
                 foreach ($schema_data as $schema_name => $sql) {
                     try {
-                        echo "<p>Criando '$schema_name'...</p>";
-
+                        echo "Criando '$schema_name'...<br>";
+                        //echo $sql."<br>";
                         // Criação de SAVEPOINT para isolar erros
                         $this->db->query("SAVEPOINT savepoint_$schema_name;");
                         $this->db->query($sql);
-                        echo "<p>'$schema_name' criado com sucesso!</p>";
+                        echo "<b style='color: green'>'$schema_name' criado com sucesso!</b>";
+                        echo "<br><br>";
                     } catch (PDOException $e) {
                         // Ignorar erros de duplicação e reverter ao SAVEPOINT
                         if (in_array($e->getCode(), ['42710', '42P07'])) {
@@ -427,7 +429,8 @@ class Migration
         } catch (Exception $e) {
             // Reverte toda a transação em caso de erro crítico
             $this->db->rollback();
-            echo "Erro ao migrar o banco de dados: " . $e->getMessage() . "<br>";
+            echo "<h3> Erro ao migrar banco de dados</h3>";
+            echo "<b style='color: red'>".$e->getMessage()."</b>";
             return false;
         }
     }
