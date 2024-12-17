@@ -1,16 +1,127 @@
-import requests
 import os
-from config import ENDPOINT
+from config import *
+
+local_endpoint = '/item.php'
+tipos = ['BEBIDA','PRATO']
+
+item_ids = []
 
 os.system('clear')
 
-def get_item(id_item = 0):
-    return requests.get(ENDPOINT + f"/item.php?id={id_item}")
-
-def test_get_item():
-    get_item_response = get_item()
-    assert get_item_response.status_code == 200
+# POST / CREATE
+def test_post_item():
+    print()
     
-def test_get_nonexistent_item():
-    get_item_response = get_item(5)
-    assert get_item_response.status_code == 200
+    # Valido
+    data = {
+        'descricao': 'test_post',
+        'valor': random_float(),
+    }
+    for tipo in tipos:
+        # Criando
+        data['tipo'] = tipo
+        post_response = criar(local_endpoint,data)
+        assert post_response.status_code  == 201
+        item_ids.append(post_response.json()['id'])
+    # Invalidos
+    
+    # Dados vazio
+    post_response = criar(local_endpoint,{})
+    print(post_response.json())
+    assert post_response.status_code == 400
+    # Dados faltantes
+    post_response = criar(local_endpoint,{'descricao': 'dado faltante'})
+    print(post_response.json())
+    assert post_response.status_code == 400
+    # Tipo invalido
+    post_response = criar(local_endpoint,
+        {
+            'descricao': 'teste',
+            'valor': random_float(),
+            'tipo': 'jonathan'
+        }
+    )
+    print(post_response.json())
+    assert post_response.status_code == 400
+    # Valor negativo
+    data['valor'] = -1
+    post_response = criar(local_endpoint, data)
+    assert post_response.status_code == 400
+    pass
+
+# GET / READ
+def test_get_item():
+    print()
+    # Valido
+    for item_id in item_ids:
+        print(f"ID Item: {item_id}")
+        get_response = selecionar(local_endpoint,item_id, True)
+        print(get_response.json())
+        assert get_response.status_code == 200
+    # Invalido
+    get_response = selecionar(local_endpoint,','.join(item_ids), True)
+    print(get_response.json())
+    assert get_response.status_code == 500
+
+# PUT / UPDATE
+
+def test_update_item():
+    print()
+    # Valido
+    for item_id in item_ids:
+        print(f"ID item: {item_id}")
+        # Valido
+        data = {
+            'id': item_id,
+            'descricao': 'item atualizado'
+        }
+        put_response = atualizar(local_endpoint,data)
+        print(put_response.json())
+        assert put_response.status_code == 200
+        # Invalidos
+        
+        # Dados vazios
+        put_response = atualizar(local_endpoint,{})
+        print(put_response.json())
+        assert put_response.status_code == 400
+        
+        # ID faltante
+        put_response = atualizar(local_endpoint,{'descricao': 'item atualizado invalido'})
+        print(put_response.json())
+        assert put_response.status_code == 400
+        
+        # Tipo invalido
+        put_response = atualizar(local_endpoint, {
+            'id': item_id,
+            'tipo': 'ui ui'
+        })
+        print(put_response.json())
+        assert put_response.status_code == 400
+        
+        # Valor invalido
+        put_response = atualizar(local_endpoint, {
+            'id': item_id,
+            'valor': -1
+        })    
+        print(put_response.json())
+        assert put_response.status_code == 400
+        
+        pass
+
+""" 
+# DELETE / DELETE
+def test_delete_item():
+    payload = {
+        'descricao': 'test_delete_item',
+        'valor': random_float(),
+        'tipo': 'PRATO',
+    }
+    # Criando item
+    post_response = criar(local_endpoint,payload)
+    assert post_response.status_code == 201
+    
+    # Deletando item
+    delete_response = delete_item(post_response.json()['id'])
+    assert delete_response.status_code == 200
+    pass
+"""
