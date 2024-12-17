@@ -5,7 +5,8 @@ require_once 'CRUDModel.php';
 class Item extends CRUDModel
 {
     protected static $table = 'item';
-    protected $tipos = ['bebida', 'prato'];
+
+    protected static $enum_tipo = 'item_tipos';
 
     public function __construct($debug = false)
     {
@@ -47,16 +48,20 @@ class Item extends CRUDModel
             //Formata o valor para retornar como 00.00
             $data['valor'] = normalizar_valor($data['valor']);
         }
-        //Tipo
-        if (!in_array($data['tipo'], $this->tipos)) {
-            return criar_mensagem(false, 'tipo invalido, informe um destes: ' . implode(',', $this->tipos));
-        }
         //Criando item
         try {
             $id = $this->insert($data);
-            return criar_mensagem(true,'Item criado com sucesso',['id' => $id]);
+            return criar_mensagem(
+                true,
+                'Item criado com sucesso',
+                ['id' => $id, 'status' => 201],
+            );
         } catch(Exception $e){
-            return criar_mensagem(false, $e->getMessage());
+            if($e->getCode() == '22P02'){
+                return criar_mensagem(false, 'Tipo invalido, informar um destes: '.implode(', ',$this->enum_valores(static::$enum_tipo)));
+            }else{
+                return criar_mensagem(false, $e->getMessage());
+            }
         }
     }
 
@@ -86,10 +91,6 @@ class Item extends CRUDModel
         if(isset($data['valor']) && $data['valor'] < 0){
             return criar_mensagem(false,'valor invalido');
         }
-        //Tipo
-        if(isset($data['tipo']) && !in_array($data['tipo'],$this->tipos)){
-            return criar_mensagem(false,'tipo invalido, informe um destes: '.implode(',',$this->tipos));
-        }
         //Atualizando
         try{
             $linhas_afetadas = $this->update($data);
@@ -97,7 +98,14 @@ class Item extends CRUDModel
             $linhas_afetadas > 0 ? 'item atualizado com sucesso' : 'item nao atualizado, verifique o id e tente novamente',
             ['rows' => $linhas_afetadas]);
         } catch(Exception $e){
-            return criar_mensagem(false, $e->getMessage());
+            $test = strpos($e->getMessage(),'invalid input value for enum');
+            if($test){
+                return criar_mensagem(false,
+                'Tipo invalido, informe um destes: '.implode(', ',$this->enum_valores(static::$enum_tipo)),
+                ['detalhes' => $e->getMessage()]);
+            }else{
+                return criar_mensagem(false, $e->getMessage(),['detalhes' => $test]);
+            }
         }
     }
 
@@ -130,4 +138,5 @@ class Item extends CRUDModel
             }
         }
     }
+
 }
