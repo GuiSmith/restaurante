@@ -52,13 +52,13 @@ def test_post_item():
 # GET / READ
 def test_get_item():
     print()
-    # Valido
+    # Valido por ID
     for item_id in item_ids:
         print(f"ID Item: {item_id}")
         get_response = selecionar(local_endpoint,item_id)
         print(get_response.json())
         assert get_response.status_code == 200
-    # Invalido
+    # Invalido por ID
     get_response = selecionar(local_endpoint,','.join(item_ids), True)
     print(get_response.json())
     assert get_response.status_code == 400
