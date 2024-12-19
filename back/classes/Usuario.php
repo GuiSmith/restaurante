@@ -102,7 +102,7 @@ class Usuario extends CRUDModel
             }
 
             // Verificar se o e-mail pertence a outro usuário
-            $id_do_email_buscado = $this->search(['email' => $data['email']], ['id']);
+            $id_do_email_buscado = $this->fetch(['email' => $data['email']]);
             if (!empty($id_do_email_buscado) && $id_do_email_buscado[0]['id'] != $data['id']) {
                 return ['ok' => false, 'mensagem' => 'E-mail ja está sendo usado por outro usuario'];
             }

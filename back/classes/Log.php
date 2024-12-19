@@ -34,7 +34,7 @@ class Log {
             //Se não encontrou registros com os IDs a serem deletados, não inserir logs
             $rows = [];
             foreach ($data['id'] as $id) {
-                $rows[] = self::$db->search($table,['id' => (int)$id]);
+                $rows[] = self::$db->fetch($table,['id' => (int)$id]);
             }
             if (count($rows) > 0){
                 $dados['registro'] = json_encode($rows);
