@@ -27,7 +27,6 @@ class Database
         }
     }
 
-
     public static function getInstance()
     {
         if (self::$instance === null) {
@@ -60,6 +59,27 @@ class Database
         return $this->pdo->inTransaction();
     }
 
+    //Trata objeto de erro de BD para mensagem PT-BR
+    function db_catch_to_string($e) {
+        $mensagem = $e->getMessage();
+    
+        return match (true) {
+            strpos($mensagem, "column") !== false && strpos($mensagem, "does not exist") !== false =>
+                "Erro: A coluna especificada não existe nesta tabela do banco de dados. Verifique o nome da coluna.",
+            
+            strpos($mensagem, "invalid input value for enum") !== false =>
+                "Erro: O valor inserido não se encaixa nos valores pre definidos. Verifique os valores permitidos.",
+            
+            strpos($mensagem, "violates unique constraint") !== false =>
+                "Erro: Tentativa de inserir um valor duplicado em uma coluna que exige valores únicos. Verifique os dados enviados.",
+            
+            strpos($mensagem, "syntax error at or near") !== false =>
+                "Erro: Há um erro de sintaxe na sua consulta SQL. Verifique a query enviada ao banco de dados.",
+            
+            default => "Erro desconhecido no banco de dados: " . $mensagem,
+        };
+    }
+
     public function query($sql, $params = [])
     {
         $stmt = $this->pdo->prepare($sql);
@@ -69,17 +89,19 @@ class Database
 
     public function id_user($token) {
         if (!is_string($token)) return null;
-        $usuario = $this->search('usuario',['token' => $token],['id']);
-        return !empty($usuario) ? $usuario[0]['id'] : null;
+        $usuario = $this->fetch('usuario',['token' => $token]);
+        return $usuario ? $usuario['id'] : null;
+    }
+
+    public function fetch(string $table, array $unique_key){
+        $key = array_keys($unique_key)[0];
+        $sql = "SELECT * FROM $table WHERE $key = :$key";
+        return $this->query($sql,$unique_key)->fetch();
     }
 
     public function fetchAll($sql, $params = [])
     {
         return $this->query($sql, $params)->fetchAll();
-    }
-
-    public function select_all($table){
-        return $this->query("SELECT * FROM $table")->fetchAll();
     }
 
     public function search($table, $conditions = [], $fields = [])

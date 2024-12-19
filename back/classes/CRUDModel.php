@@ -57,18 +57,64 @@ class CRUDModel
         return self::$db->fetchAll($sql);
     }
 
+    public function fetch(array $param = []){
+        //Se vazio
+        if(empty($param) || empty(array_values($param)[0])){
+            return criar_mensagem(false,"Nenhum dado foi enviado para pesquisa",['dados' => $param]);
+        }
+        try {
+            $result = self::$db->fetch(static::$table,$param);
+            return $result ?? criar_mensagem(
+                false,
+                'Nenhum dado encontrado com esta chave',
+                ['chave' => $param]
+            );
+        } catch (PDOException $e) {
+            return criar_mensagem(
+                false,
+                self::$db->db_catch_to_string($e),
+                ['detalhes' => $e->getMessage()]
+            );
+        }
+        
+    }
+
     public function search(array $conditions = [], array $fields = [])
     {
         //Se condições E campos forem vazios, chamar por ALL
         if (empty($conditions) && empty($fields)){
-            $search = $this->all();
+            return $this->all();
         }else{
+            //Mudando valores de status para maiúsculos
             if(array_key_exists('status',$conditions)){
                 $conditions['status'] = strtoupper($conditions['status']);
             }
-            $search = self::$db->search(static::$table, $conditions, $fields);
+            //Verificando se há algum valor nulo nas condições passadas
+            if (in_array('',array_values($conditions))) {
+                return criar_mensagem(
+                    false, 
+                    'Impossivel realizar pesquisa usando filtros com valores nulos',
+                    ['filtros' => $conditions]
+                );
+            }
+            try {
+                $result = self::$db->search(static::$table, $conditions, $fields);
+                return $result ?? criar_mensagem(
+                    false,
+                    'Nenhum dado encontrado com os filtros mencionados',
+                    [
+                        'filtros' => $conditions,
+                        'colunas' => $fields
+                    ]
+                );
+            } catch (PDOException $e) {
+                return criar_mensagem(
+                    false,
+                    self::$db->db_catch_to_string($e),
+                    ['detalhes' => $e->getMessage()]
+                );
+            }            
         }
-        return $search;
     }
 
     // Retorna o status de uma comanda específica
