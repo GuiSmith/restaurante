@@ -55,13 +55,13 @@ def test_get_item():
     # Valido
     for item_id in item_ids:
         print(f"ID Item: {item_id}")
-        get_response = selecionar(local_endpoint,item_id, True)
+        get_response = selecionar(local_endpoint,item_id)
         print(get_response.json())
         assert get_response.status_code == 200
     # Invalido
     get_response = selecionar(local_endpoint,','.join(item_ids), True)
     print(get_response.json())
-    assert get_response.status_code == 500
+    assert get_response.status_code == 400
 
 # PUT / UPDATE
 
