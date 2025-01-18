@@ -12,52 +12,66 @@
 
 A estrutura do projeto é a seguinte:
 
-```
+``` bash
 restaurante/
-├── back/
-│   ├── api/
-│   │   ├── comanda.php
-│   │   ├── itemcomanda.php
-│   │   ├── log.php
-│   │   ├── relatorios.php
-│   │   └── config.php
-│   ├── classes/
-│   │   ├── Comanda.php
-│   │   ├── CRUDModel.php
-│   │   ├── Database.php
-│   │   ├── Item.php
-│   │   ├── ItemComanda.php
-│   │   ├── Log.php
-│   │   ├── Pagamento.php
-│   │   ├── Relatorios.php
-│   │   └── Usuario.php
-│   ├── functions.php
-│   └── migration/
-│       ├── drop.php
-│       ├── index.php
-│       └── Migration.php
-├── banco.sql
-├── diagramas/
-│   ├── banco_modelo_conceitual.brM3
-│   └── banco_modelo_logico.brM3
-├── testes/
-│   ├── api/
-│   │   ├── comanda
-│   │   ├── fluxo
-│   │   ├── fluxo_gpt
-│   │   ├── item
-│   │   ├── itemcomanda
-│   │   ├── pagamento
-│   │   └── usuario
-│   ├── classes/
-│   │   ├── comanda.php
-│   │   ├── fluxo.php
-│   │   ├── item.php
-│   │   ├── itemcomanda.php
-│   │   ├── log.php
-│   │   └── pagamento.php
-│   ├── index.php
-│   └── utils.php
+├── back
+│   ├── api
+│   │   ├── comanda.php
+│   │   ├── config.php
+│   │   ├── itemcomanda.php
+│   │   ├── item.php
+│   │   ├── log.php
+│   │   ├── pagamento.php
+│   │   ├── relatorios.php
+│   │   └── usuario.php
+│   ├── classes
+│   │   ├── Comanda.php
+│   │   ├── CRUDModel.php
+│   │   ├── Database.php
+│   │   ├── ItemComanda.php
+│   │   ├── Item.php
+│   │   ├── Log.php
+│   │   ├── Pagamento.php
+│   │   ├── Relatorios.php
+│   │   └── Usuario.php
+│   ├── functions.php
+│   ├── migration
+│   │   ├── drop.php
+│   │   ├── index.php
+│   │   └── Migration.php
+│   └── testes
+│       ├── bash
+│       │   ├── comanda
+│       │   ├── fluxo
+│       │   ├── fluxo_gpt
+│       │   ├── item
+│       │   ├── itemcomanda
+│       │   ├── pagamento
+│       │   ├── relatorios
+│       │   └── usuario
+│       ├── classes
+│       │   ├── comanda.php
+│       │   ├── fluxo.php
+│       │   ├── itemcomanda.php
+│       │   ├── item.php
+│       │   ├── log.php
+│       │   └── pagamento.php
+│       ├── index.php
+│       ├── python
+│       │   ├── config.py
+│       │   ├── __pycache__
+│       │   │   ├── config.cpython-312.pyc
+│       │   │   ├── test_item.cpython-312-pytest-7.4.4.pyc
+│       │   │   └── test_usuario.cpython-312-pytest-7.4.4.pyc
+│       │   ├── test_item.py
+│       │   └── test_usuario.py
+│       └── utils.php
+├── documentos
+│   ├── diagramas
+│   │   ├── banco_modelo_conceitual.brM3
+│   │   └── banco_modelo_logico.brM3
+│   ├── feedback.pdf
+│   └── requisitos.pdf
 ├── README.md
 ```
 
