@@ -8,13 +8,6 @@ api_url = 'http://localhost/restaurante/back/api'
 def random_float(low = 5, high = 50):
     return round(random.uniform(low,high),2)
 
-def is_json(myjson):
-  try:
-    json.loads(myjson)
-  except ValueError as e:
-    return False
-  return True
-
 def criar(endpoint, payload):
   return requests.post(api_url+endpoint, json=payload)
 

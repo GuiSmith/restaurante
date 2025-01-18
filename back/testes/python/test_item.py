@@ -64,7 +64,6 @@ def test_get_item():
     assert get_response.status_code == 400
 
 # PUT / UPDATE
-
 def test_update_item():
     print()
     # Valido
@@ -108,20 +107,21 @@ def test_update_item():
         
         pass
 
-""" 
 # DELETE / DELETE
 def test_delete_item():
-    payload = {
-        'descricao': 'test_delete_item',
-        'valor': random_float(),
-        'tipo': 'PRATO',
-    }
-    # Criando item
-    post_response = criar(local_endpoint,payload)
-    assert post_response.status_code == 201
     
-    # Deletando item
-    delete_response = delete_item(post_response.json()['id'])
+    # Válido
+    delete_response = deletar(local_endpoint, ",".join(map(str, item_ids)))
+    print(delete_response.json())
     assert delete_response.status_code == 200
+    
+    # Invalido ID não existente
+    delete_response = deletar(local_endpoint,999)
+    print(delete_response.json())
+    assert delete_response.status_code == 400
+    
+    # Invalido
+    delete_response = deletar(local_endpoint,'')
+    print(delete_response.json())
+    assert delete_response.status_code == 400
     pass
-"""
