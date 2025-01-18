@@ -58,10 +58,22 @@ def test_get_item():
         get_response = selecionar(local_endpoint,item_id)
         print(get_response.json())
         assert get_response.status_code == 200
+        
     # Invalido por ID
     get_response = selecionar(local_endpoint,','.join(item_ids), True)
     print(get_response.json())
     assert get_response.status_code == 400
+    
+    # Invalido, sem ID
+    get_response = selecionar(local_endpoint)
+    print(get_response.json())
+    assert get_response.status_code == 400
+    
+    # Invalido, ID não encontrado
+    get_response = selecionar(local_endpoint,999)
+    print(get_response.json())
+    assert get_response.status_code == 404
+    pass
 
 # PUT / UPDATE
 def test_update_item():
@@ -69,6 +81,7 @@ def test_update_item():
     # Valido
     for item_id in item_ids:
         print(f"ID item: {item_id}")
+        
         # Valido
         data = {
             'id': item_id,
@@ -77,7 +90,16 @@ def test_update_item():
         put_response = atualizar(local_endpoint,data)
         print(put_response.json())
         assert put_response.status_code == 200
+        
         # Invalidos
+        
+        # ID não encontrado
+        put_response = atualizar(local_endpoint,{
+            'id': 999,
+            'valor': 5
+        })
+        print(put_response.json())
+        assert put_response.status_code == 404
         
         # Dados vazios
         put_response = atualizar(local_endpoint,{})
@@ -118,7 +140,7 @@ def test_delete_item():
     # Invalido ID não existente
     delete_response = deletar(local_endpoint,999)
     print(delete_response.json())
-    assert delete_response.status_code == 400
+    assert delete_response.status_code == 404
     
     # Invalido
     delete_response = deletar(local_endpoint,'')
