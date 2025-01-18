@@ -69,8 +69,8 @@ Aqui você verá os caminhos disponíveis para interagir com a API do sistema de
 - **Caminho:** `restaurante/back/api/item.php`
 - **Caminho para Testes CURL:** `restaurante/testes/api/item`
 
-### Exemplo de Requisição
-Cadastrar um item no cardápio:
+### Exemplos de Requisição
+#### Cadastar um item no cardápio
 ```bash
 curl -X POST "http://localhost/restaurante/back/api/item.php" \
 -H "Content-Type: application/json" \
@@ -80,7 +80,27 @@ curl -X POST "http://localhost/restaurante/back/api/item.php" \
     "tipo": "prato"
 }'
 ```
+#### Listar itens de cardápio
+``` bash
+ # Listar todos
+curl -X GET "http://localhost/restaurante/back/api/item.php"
 
+# Listar específico
+curl -X GET "http://localhost/restaurante/back/api/item.php?id=3"
+```
+#### Atualizar itens de cardápio
+``` bash
+curl -X PUT "http://localhost/restaurante/back/api/item.php" \
+-H "Content-Type: application/json" \
+-d '{
+    "id":3,
+    "descricao":"Teste de edicao"
+}'
+```
+#### Deletar itens de cardápio
+``` bash
+curl -X DELETE "http://localhost/restaurante/back/api/item.php?id=3"
+```
 ## Abrir e Fechar Comandas
 - **Caminho:** `restaurante/back/api/comanda.php`
 - **Caminho para Testes CURL:** `restaurante/testes/api/comanda`
