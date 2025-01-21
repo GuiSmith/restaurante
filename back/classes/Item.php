@@ -19,7 +19,6 @@ class Item extends CRUDModel
     public function criar($data)
     {
         $dados_obrigatorios = ['descricao', 'valor', 'tipo'];
-        $dados_permitidos = ['token'];
         //Tratando vazio
         if (empty($data)){
             return criar_mensagem(false,'Informe os seguintes para cadastrar um item: '
@@ -27,7 +26,7 @@ class Item extends CRUDModel
             );
         }
         //Retirando somente as chaves necessárias
-        $data = array_intersect_key($data, array_flip(array_merge($dados_obrigatorios,$dados_permitidos)));
+        $data = array_intersect_key($data, array_flip(array_merge($dados_obrigatorios)));
         //Checando vazio
         if (!array_keys_exists($data, $dados_obrigatorios)) {
             return criar_mensagem(
@@ -54,13 +53,13 @@ class Item extends CRUDModel
             return criar_mensagem(
                 true,
                 'Item criado com sucesso',
-                ['id' => $id, 'status' => 201],
+                ['id' => $id],
             );
         } catch(Exception $e){
             if($e->getCode() == '22P02'){
                 return criar_mensagem(false, 'Tipo invalido, informar um destes: '.implode(', ',$this->enum_valores(static::$enum_tipo)));
             }else{
-                return criar_mensagem(false, $e->getMessage());
+                return criar_mensagem(false, $e->getMessage(),['status'=>500]);
             }
         }
     }
@@ -68,7 +67,6 @@ class Item extends CRUDModel
     public function atualizar($data){
         $dados_opcionais = ['descricao','valor','tipo','ativo','id'];
         $dados_obrigatorios = ['id'];
-        $dados_permitidos = ['token'];
         //Tratando vazio
         if (empty($data)){
             return criar_mensagem(false,'Dados obrigatorios: '
@@ -78,7 +76,7 @@ class Item extends CRUDModel
             );
         }
         //Extraindo somente dados necessários
-        $data = array_intersect_key($data,array_flip(array_merge($dados_opcionais,$dados_obrigatorios,$dados_permitidos)));
+        $data = array_intersect_key($data,array_flip(array_merge($dados_opcionais,$dados_obrigatorios)));
         //Verificando ID
         if(!isset($data['id'])){
             return criar_mensagem(false,'informe o ID para atualizar itens');
@@ -94,9 +92,11 @@ class Item extends CRUDModel
         //Atualizando
         try{
             $linhas_afetadas = $this->update($data);
-            return criar_mensagem(true,
-            $linhas_afetadas > 0 ? 'item atualizado com sucesso' : 'item nao atualizado, verifique o id e tente novamente',
-            ['rows' => $linhas_afetadas]);
+            if ($linhas_afetadas == 0) {
+                return criar_mensagem(false, 'Nenhum item encontrado com o id fornecido', ['status' => 404]);
+            }else{
+                return criar_mensagem(true,'Item atualizado',['linhas_afetadas' => $linhas_afetadas]);
+            }
         } catch(Exception $e){
             $test = strpos($e->getMessage(),'invalid input value for enum');
             if($test){
@@ -104,23 +104,21 @@ class Item extends CRUDModel
                 'Tipo invalido, informe um destes: '.implode(', ',$this->enum_valores(static::$enum_tipo)),
                 ['detalhes' => $e->getMessage()]);
             }else{
-                return criar_mensagem(false, $e->getMessage(),['detalhes' => $test]);
+                return criar_mensagem(false, $e->getMessage(),['detalhes' => $test,'status' => 500]);
             }
         }
     }
-
     public function deletar($data){
         $dados_obrigatorios = ['id'];
-        $dados_permitidos = ['token'];
         //Tratando vazio
         if (empty($data)){
-            return criar_mensagem(false,'ID e necessario para deletar usuarios');
+            return criar_mensagem(false,'ID e necessario para deletar');
         }
         //Retirando dados necessários
-        $data = array_intersect_key($data,array_flip(array_merge($dados_obrigatorios,$dados_permitidos)));
+        $data = array_intersect_key($data,array_flip(array_merge($dados_obrigatorios)));
         //Verificando IDs
         if(!isset($data['id'])){
-            return criar_mensagem(false,'ID e necessario para deletar usuarios');
+            return criar_mensagem(false,'ID e necessario para deletar');
         }
         //Deletando
         try{
@@ -128,13 +126,13 @@ class Item extends CRUDModel
             if($this->delete($data)){
                 return criar_mensagem(true,'Registro deletado com sucesso');
             }else{
-                return criar_mensagem(false,'Nenhum registro encontrado com ids fornecidos');
+                return criar_mensagem(false,'Nenhum registro encontrado com ids fornecidos',['status'=>404]);
             }
         } catch(Exception $e){
             if($e->getCode() == 23503){
                 return criar_mensagem(false, "Nao e possivel deletar $this->table pois outros registros dependem deste");
             }else{
-                return criar_mensagem(false, $e->getMessage());
+                return criar_mensagem(false, $e->getMessage(),['status'=>500]);
             }
         }
     }

@@ -76,7 +76,6 @@ class CRUDModel
                 ['detalhes' => $e->getMessage()]
             );
         }
-        
     }
 
     public function search(array $conditions = [], array $fields = [])
@@ -111,7 +110,12 @@ class CRUDModel
                 return criar_mensagem(
                     false,
                     self::$db->db_catch_to_string($e),
-                    ['detalhes' => $e->getMessage()]
+                    [
+                            'detalhes' => $e->getMessage(),
+                            'filtros' => $conditions,
+                            'colunas' => $fields,
+                            'status' => 500
+                    ]
                 );
             }            
         }

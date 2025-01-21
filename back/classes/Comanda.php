@@ -24,7 +24,7 @@ class Comanda extends CRUDModel
             $id = $this->insert($data);
             return criar_mensagem(true, 'Comanda aberta com sucesso.', ['id' => $id]);
         } catch (Exception $e) {
-            return criar_mensagem(false, $e->getMessage());
+            return criar_mensagem(false, $e->getMessage(),['status'=>500]);
         }
     }
 
@@ -46,7 +46,7 @@ class Comanda extends CRUDModel
             if($linhas_afetadas > 0){
                 return criar_mensagem(true,'Comanda fechada');
             }else{
-                return criar_mensagem(false,'Comanda não encontrada: '.$data['id']);
+                return criar_mensagem(false,'Comanda não encontrada: '.$data['id'],['status'=>404]);
             }
         } catch (Exception $e) {
             return criar_mensagem(false, $e->getMessage());
@@ -59,13 +59,11 @@ class Comanda extends CRUDModel
         $dados_permitidos = ['token'];
         //Tratando vazio
         if (empty($data)){
-            return criar_mensagem(false,'ID e necessario para deletar usuarios');
-        }
-        //Retirando dados necessários
-        $data = array_intersect_key($data,array_flip(array_merge($dados_obrigatorios,$dados_permitidos)));
-        //Verificando IDs
-        if(!isset($data['id'])){
-            return criar_mensagem(false,'ID e necessario para deletar usuarios');
+            return criar_mensagem(false,'Informe o ID para deletar a comanda');
+        }else{
+            if(!array_keys_exists($data,$dados_obrigatorios)){
+                return criar_mensagem(false,"Informe os seguintes para deletar comanda: ".implode(',',$dados_obrigatorios));
+            }
         }
         //Deletando
         try{
@@ -73,13 +71,13 @@ class Comanda extends CRUDModel
             if($this->delete($data)){
                 return criar_mensagem(true,'Registro deletado com sucesso');
             }else{
-                return criar_mensagem(false,'Nenhum registro encontrado com ids fornecidos');
+                return criar_mensagem(false,'Nenhum registro encontrado com ids fornecidos',['status'=>404]);
             }
         } catch(Exception $e){
             if($e->getCode() == 23503){
                 return criar_mensagem(false, "Nao e possivel deletar $this->table pois outros registros dependem deste");
             }else{
-                return criar_mensagem(false, $e->getMessage());
+                return criar_mensagem(false, $e->getMessage(),['status'=>500]);
             }
         }
     }

@@ -1,11 +1,6 @@
 <?php
 require_once '../classes/Item.php';
-
-// Configurar cabeçalhos HTTP
-header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
+require_once 'config.php';
 
 // Obter o método da requisição
 $method = $_SERVER['REQUEST_METHOD'];
@@ -24,15 +19,7 @@ try {
         'DELETE' => $item->deletar($_GET),
         default => methodNotAllowed()
     };
-    if(isset($response['status'])){
-        http_response_code($response['status']);
-    }else{
-        if(isset($response['ok'])){
-            http_response_code( $response['ok'] ? 200 : 400);
-        }else{
-            http_response_code(200);
-        }
-    }
+    http_code($method, $response);
 } catch (Exception $e) {
     http_response_code(500); // Erro interno do servidor
     $response = criar_mensagem(false,'Erro interno: '.$e->getMessage(),['GET' => $_GET, 'POST' => $_POST]);
@@ -40,10 +27,3 @@ try {
 
 // Retornar a resposta como JSON
 echo json_encode($response);
-
-// Método não permitido
-function methodNotAllowed(): array
-{
-    http_response_code(405); // Método não permitido
-    return ['ok' => false, 'mensagem' => 'Metodo nao suportado'];
-}
