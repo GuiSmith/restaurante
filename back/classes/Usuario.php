@@ -172,9 +172,12 @@ class Usuario extends CRUDModel
             if (!$usuario) {
                 return criar_mensagem(false,'Token nao encontrado, realize login com email e senha');
             }else{
-                if ($this->token_expirado($usuario['data_hora_expiracao_token'])) {
-                    $this->inutilizar_token($data['token'], $usuario['id']);
-                    return criar_mensagem(false,'Token expirado, realize login com email e senha');
+                if($usuario['data_hora_expiracao_token'] == null || $usuario['data_hora_expiracao_token'] == ''){
+                    return criar_mensagem(false,'Token invalido, realize login com email e senha');
+                }else{
+                    if ($this->token_expirado($data['token'])) {
+                        return criar_mensagem(false,'Token expirado, realize login com email e senha');
+                    }
                 }
             }
         }else {
@@ -191,15 +194,13 @@ class Usuario extends CRUDModel
             //Checando senha
             if (!$usuario || !password_verify($data['senha'], $usuario['senha'])) {
                 return criar_mensagem(false, 'Credenciais invalidas');
-                //Por questões de segurança, é ideal dizer que credenciais estão invalidas do que dizer se só a senha está errada, se email não foi encontrado, etc.
             }
         }
 
         // Atualiza ou gera um token
-        if (empty($usuario['token']) || $this->token_expirado($usuario['data_hora_expiracao_token'])) {
+        if (is_null($usuario['token']) || $this->token_expirado($usuario['token'])) {
             $token = bin2hex(random_bytes(32));
             $expiracao = date('Y-m-d H:i:s', strtotime('+1 year'));
-            $this->atualizar_token($usuario['id'], $token, $expiracao);
         } else {
             $token = $usuario['token'];
             $expiracao = $usuario['data_hora_expiracao_token'];
@@ -217,7 +218,7 @@ class Usuario extends CRUDModel
         if (!$usuario) {
             return criar_mensagem(false, 'Token nao encontrado');
         }
-        $linhas_afetadas = $this->inutilizar_token($token, $usuario['id']);
+        $linhas_afetadas = $this->inutilizar_token($usuario['id']);
         if($linhas_afetadas > 0){
             return criar_mensagem(true, 'Log out realizado com sucesso!');
         }else{
@@ -233,34 +234,43 @@ class Usuario extends CRUDModel
         }
         $usuario = $this->search(['token' => $token], $fields);
         $usuario = $usuario[0] ?? null;
-        if($usuario != null){
-            if($this->token_expirado($usuario['data_hora_expiracao_token'])){
-                return ['ok' => false,'mensagem' => 'token expirado'];
-            }
-        }
         return $usuario;
     }
 
-    // Função para verificar se o token está expirado
-    protected function token_expirado($dataExpiracao): bool
-    {
-        return strtotime($dataExpiracao) < strtotime('now');
-    }
-
-    // Função para atualizar o token
-    private function atualizar_token(int $id, string $token, string $expiracao): void
-    {
-        $this->update(
-            ['token' => $token, 'data_hora_expiracao_token' => $expiracao, 'id' => $id]
-        );
-    }
-
     // Função para inutilizar um token
-    private function inutilizar_token(string $token, $id)
+    private function inutilizar_token($id)
     {
         $linhas_afetadas = $this->update(
             ['token' => null, 'data_hora_expiracao_token' => null, 'id' => $id]
         );
         return $linhas_afetadas;
+    }
+
+    // Função que verifica se token está expirado
+    public function token_expirado($token): bool
+    {
+        $usuario = $this->buscar_por_token($token, ['data_hora_expiracao_token']);
+        if (!$usuario) {
+            return true;
+        }
+        if (strtotime($usuario['data_hora_expiracao_token']) < strtotime('now')) {
+            return true;
+        }
+        return false;
+    }
+
+    // Função que valida se um token é válido
+    public function token_valido($token): bool
+    {
+        $usuario = $this->buscar_por_token($token, ['id']);
+        // Se existe
+        if (!$usuario) {
+            return false;
+        }
+        // Se está expirado
+        if ($this->token_expirado($token)) {
+            return false;
+        }
+        return true;
     }
 }

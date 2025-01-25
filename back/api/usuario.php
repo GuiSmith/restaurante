@@ -1,11 +1,6 @@
 <?php
 require_once '../classes/Usuario.php';
-
-// Configurar cabeçalhos HTTP
-header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
+require_once 'config.php';
 
 // Obter o método da requisição
 $method = $_SERVER['REQUEST_METHOD'];
@@ -17,20 +12,25 @@ $response = []; // Inicializa a resposta
 $usuario = new Usuario();
 
 try {
-    $response = match ($method) {
-        'GET' => $usuario->search($_GET),
-        'POST' => post( $input),
-        'PUT' => $usuario->atualizar($input),
-        'DELETE' => delete(),
-        default => methodNotAllowed()
-    };
-    if(isset($response['status'])){
-        http_response_code($response['status']);
+    // Verifica o que fazer de acordo com o método HTTP
+    if ($method === 'POST' && isset($input['login']) && $input['login']) {
+        // Login
+        $response = $usuario->login($input);
     }else{
-        if(isset($response['ok'])){
-            http_response_code( $response['ok'] ? 200 : 400);
+        // Verificar se usuário está autenticado
+        if(!auth()){
+            // Não autorizado
+            http_response_code(401);
+            $response = criar_mensagem(false,'Não autorizado, faça login para continuar');
         }else{
-            http_response_code(200);
+            // Autorizado
+            $response = match ($method) {
+                'POST' => post($input),
+                'GET' => $usuario->search($_GET),
+                'PUT' => $usuario->atualizar($input),
+                'DELETE' => delete(),
+                default => methodNotAllowed()
+            };
         }
     }
 } catch (Exception $e) {
@@ -72,11 +72,4 @@ function delete()
     }
 
     return criar_mensagem(false,'Informe um token para realizar logout e um id para deletar usuarios');
-}
-
-// Método não permitido
-function methodNotAllowed(): array
-{
-    http_response_code(405); // Método não permitido
-    return criar_mensagem(false, 'Metodo nao suportado');
 }
