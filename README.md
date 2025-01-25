@@ -299,13 +299,15 @@ curl -X POST "http://localhost/restaurante/back/api/usuario.php" \
 -H "Content-Type: application/json" \
 -d '{
     "email": "joao.silva@email.com",
-    "senha": "123456"
+    "senha": "123456",
+    "login": "true"
 }'
 ```
 
 - **Campos:**
   - `email` (obrigatório): Endereço de email do usuário.
   - `senha` (obrigatório): Senha do usuário.
+  - `login` (opcional): Necessário para informar que você quer realizar login
   - `token` (opcional): Token para autenticação automática.
 
 - **Respostas Possíveis:**
