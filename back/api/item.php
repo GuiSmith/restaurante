@@ -12,14 +12,20 @@ $response = []; // Inicializa a resposta
 $item = new Item();
 
 try {
-    $response = match ($method) {
-        'GET' => $item->search($_GET),
-        'POST' => $item->criar($input),
-        'PUT' => $item->atualizar($input),
-        'DELETE' => $item->deletar($_GET),
-        default => methodNotAllowed()
-    };
-    http_code($method, $response);
+    // Verificar autenticação
+    if(!auth()){
+        http_response_code(401); // Não autorizado
+        $response = criar_mensagem(false,'Não autorizado');
+    }else{
+        $response = match ($method) {
+            'GET' => $item->search($_GET),
+            'POST' => $item->criar($input),
+            'PUT' => $item->atualizar($input),
+            'DELETE' => $item->deletar($_GET),
+            default => methodNotAllowed()
+        };
+        http_code($method, $response);
+    }
 } catch (Exception $e) {
     http_response_code(500); // Erro interno do servidor
     $response = criar_mensagem(false,'Erro interno: '.$e->getMessage(),['GET' => $_GET, 'POST' => $_POST]);

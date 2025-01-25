@@ -1,13 +1,31 @@
 <?php
 
+/* Função que valida:
+1 - Verificar se um array possui todas as chaves obrigatórias
+2 - Se o array está vazio
+3 - Se o array é nulo
+*/
 function array_keys_exists($data, $dados_obrigatorios)
 {
+    if (empty($data) || is_null($data)) {
+        return false;
+    }
     foreach ($dados_obrigatorios as $dado_obrigatorio) {
         if (!isset($data[$dado_obrigatorio])) {
             return false;
         }
     }
     return true;
+}
+
+// Função que retira todas as chaves que não são permitidas
+function array_keys_filter($data, $dados_permitidos)
+{
+    if(empty($data)){
+        return [];
+    }else{
+        return array_intersect_key($data, array_flip($dados_permitidos));
+    }
 }
 
 function criar_mensagem(bool $ok, string $mensagem, array $dados = [])

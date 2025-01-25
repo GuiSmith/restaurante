@@ -19,26 +19,13 @@ class ItemComanda extends CRUDModel
     public function criar($data)
     {
         $dados_obrigatorios = ['id_item', 'id_comanda', 'quantidade'];
-        $dados_opcionais = ['descontos','isento','status'];
-        $dados_permitidos = ['token'];
-        //Tratando vazio
-        if (empty($data)){
+        $dados_permitidos = ['token','descontos','isento','status'];
+        // Valida dados passados
+        if(array_keys_exists($data,$dados_obrigatorios)){
             return criar_mensagem(
-                false, 
-                "Informe os campos obrigatorios: "
-                . implode(', ', $dados_obrigatorios)
-            );
-        }
-        // Retirando somente as chaves necessárias
-        $data = array_intersect_key($data, array_flip(array_merge($dados_obrigatorios,$dados_opcionais,$dados_permitidos)));
-        // Checando se os dados obrigatórios foram fornecidos
-        if (!array_keys_exists($data, $dados_obrigatorios)) {
-            return criar_mensagem(
-                false, 
-                "Informe os campos obrigatórios: "
-                . implode(', ', $dados_obrigatorios)
-                . ". Você informou: "
-                . implode(", ", array_keys($data))
+                false,
+                'Ha dados faltantes',
+            ['obrigatorios' => $dados_obrigatorios, 'permitidos' => $dados_permitidos]
             );
         }
         // ID Item
@@ -87,24 +74,15 @@ class ItemComanda extends CRUDModel
 
     public function atualizar($data)
     {
-        $dados_opcionais = ['quantidade', 'status', 'descontos', 'isento'];
         $dados_obrigatorios = ['id'];
-        $dados_permitidos = ['token'];
-        //Tratando vazio
-        if (empty($data)){
+        $dados_permitidos = ['token','quantidade', 'status', 'descontos', 'isento'];
+        // Valida dados passados
+        if(array_keys_exists($data,$dados_obrigatorios)){
             return criar_mensagem(
-                false, 
-                "Informe os campos obrigatorios: "
-                . implode(', ', $dados_obrigatorios).". "
-                . "campos opcionais: "
-                . implode(', ', $dados_opcionais)
+                false,
+                'Ha dados faltantes',
+                ['obrigatorios' => $dados_obrigatorios, 'permitidos' => $dados_permitidos]
             );
-        }
-        // Extraindo somente dados necessários
-        $data = array_intersect_key($data, array_flip(array_merge($dados_opcionais,$dados_obrigatorios,$dados_permitidos)));
-        // Verificando ID
-        if (!isset($data['id'])) {
-            return criar_mensagem(false, 'Informe o ID para atualizar item comanda');
         }
         // Quantidade
         if (isset($data['quantidade']) && $data['quantidade'] <= 0) {
@@ -147,15 +125,13 @@ class ItemComanda extends CRUDModel
     {
         $dados_obrigatorios = ['id'];
         $dados_permitidos = ['token'];
-        //Tratando vazio
-        if (empty($data)){
-            return criar_mensagem(false,'ID e necessario para deletar');
-        }
-        //Retirando dados necessários
-        $data = array_intersect_key($data,array_flip(array_merge($dados_obrigatorios,$dados_permitidos)));
-        //Verificando IDs
-        if(!isset($data['id'])){
-            return criar_mensagem(false,'ID e necessario para deletar');
+        // Validando dados passados
+        if(array_keys_exists($data,$dados_obrigatorios)){
+            return criar_mensagem(
+                false,
+                'Ha dados faltantes',
+                ['obrigatorios' => $dados_obrigatorios, 'permitidos' => $dados_permitidos]
+            );
         }
         //Deletando
         try{

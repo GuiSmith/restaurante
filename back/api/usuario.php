@@ -13,9 +13,9 @@ $usuario = new Usuario();
 
 try {
     // Verifica o que fazer de acordo com o método HTTP
-    if ($method === 'POST' && isset($input['login']) && $input['login']) {
-        // Login
-        $response = $usuario->login($input);
+    if ($method === 'POST' && get_token() == '') {
+        // Login ou criar usuário
+        $response = post($input);
     }else{
         // Verificar se usuário está autenticado
         if(!auth()){
@@ -24,6 +24,7 @@ try {
             $response = criar_mensagem(false,'Não autorizado, faça login para continuar');
         }else{
             // Autorizado
+            $input['token'] = get_token();
             $response = match ($method) {
                 'POST' => post($input),
                 'GET' => $usuario->search($_GET),

@@ -19,22 +19,13 @@ class Item extends CRUDModel
     public function criar($data)
     {
         $dados_obrigatorios = ['descricao', 'valor', 'tipo'];
-        //Tratando vazio
-        if (empty($data)){
-            return criar_mensagem(false,'Informe os seguintes para cadastrar um item: '
-                .implode(', ', $dados_obrigatorios)
-            );
-        }
-        //Retirando somente as chaves necessárias
-        $data = array_intersect_key($data, array_flip(array_merge($dados_obrigatorios)));
-        //Checando vazio
+        // Valida dados passados
         if (!array_keys_exists($data, $dados_obrigatorios)) {
             return criar_mensagem(
-                false, 
-                "Informe os campos obrigatorios: "
-                .implode(', ', $dados_obrigatorios)
-                .". Voce informou: "
-                .implode(", ", array_keys($data)));
+                false,
+                'Há dados faltantes',
+                ['informados' => $data, 'obrigatorios' => $dados_obrigatorios]
+            );
         }
         //Descrição
         if (empty($data['descricao'])) {
@@ -65,21 +56,15 @@ class Item extends CRUDModel
     }
 
     public function atualizar($data){
-        $dados_opcionais = ['descricao','valor','tipo','ativo','id'];
+        $dados_permitidos = ['descricao','valor','tipo','ativo','id'];
         $dados_obrigatorios = ['id'];
-        //Tratando vazio
-        if (empty($data)){
-            return criar_mensagem(false,'Dados obrigatorios: '
-                .implode(', ', $dados_obrigatorios).". "
-                ."Dados opcionais: "
-                .implode(', ', $dados_opcionais)
+        // Valida dados passados
+        if(!array_keys_exists($data, $dados_obrigatorios)){
+            return criar_mensagem(
+                false, 
+                'Há dados faltantes',
+                ['informados' => $data, 'obrigatorios' => $dados_obrigatorios, 'permitidos' => $dados_permitidos]
             );
-        }
-        //Extraindo somente dados necessários
-        $data = array_intersect_key($data,array_flip(array_merge($dados_opcionais,$dados_obrigatorios)));
-        //Verificando ID
-        if(!isset($data['id'])){
-            return criar_mensagem(false,'informe o ID para atualizar itens');
         }
         //Descrição
         if(isset($data['descricao']) && empty($data['descricao'])){
@@ -110,15 +95,14 @@ class Item extends CRUDModel
     }
     public function deletar($data){
         $dados_obrigatorios = ['id'];
-        //Tratando vazio
-        if (empty($data)){
-            return criar_mensagem(false,'ID e necessario para deletar');
-        }
-        //Retirando dados necessários
-        $data = array_intersect_key($data,array_flip(array_merge($dados_obrigatorios)));
-        //Verificando IDs
-        if(!isset($data['id'])){
-            return criar_mensagem(false,'ID e necessario para deletar');
+        $dados_permitidos = ['token'];
+        // Valida dados passados
+        if(!array_keys_exists($data, $dados_obrigatorios)){
+            return criar_mensagem(
+                false, 
+                'Há dados faltantes',
+                ['informados' => $data, 'obrigatorios' => $dados_obrigatorios, 'permitidos' => $dados_permitidos]
+            );
         }
         //Deletando
         try{

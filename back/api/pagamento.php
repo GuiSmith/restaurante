@@ -12,13 +12,19 @@ $response = []; // Inicializa a resposta
 $pagamento = new Pagamento();
 
 try {
-    $response = match ($method) {
-        'GET' => $pagamento->search($_GET),
-        'POST' => $pagamento->criar($input),
-        'DELETE' => $pagamento->deletar($_GET),
-        default => methodNotAllowed()
-    };
-    http_code($method, $response);
+    // Verificar autenticação
+    if(!auth()){
+        http_response_code(401); // Não autorizado
+        $response = criar_mensagem(false,'Não autorizado');
+    }else{
+        $response = match ($method) {
+            'GET' => $pagamento->search($_GET),
+            'POST' => $pagamento->criar($input),
+            'DELETE' => $pagamento->deletar($_GET),
+            default => methodNotAllowed()
+        };
+        http_code($method, $response);
+    }
 } catch (Exception $e) {
     http_response_code(500); // Erro interno do servidor
     $response = criar_mensagem(false,'Erro interno: '.$e->getMessage());

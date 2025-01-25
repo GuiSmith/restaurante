@@ -9,11 +9,17 @@ $response = []; // Inicializa a resposta
 $relatorios = new Relatorios();
 
 try {
-    $response = match ($method) {
-        'GET' => $relatorios->view($_GET['view'] ?? null),
-        default => methodNotAllowed()
-    };
-    http_code($method, $response);
+    // Verificar autenticação
+    if(!auth()) {
+        http_response_code(401); // Não autorizado
+        throw new Exception('Acesso negado');
+    }else{
+        $response = match ($method) {
+            'GET' => $relatorios->view($_GET['view'] ?? null),
+            default => methodNotAllowed()
+        };
+        http_code($method, $response);
+    }
 } catch (Exception $e) {
     http_response_code(500); // Erro interno do servidor
     $response = criar_mensagem(false,'Erro interno: '.$e->getMessage());
