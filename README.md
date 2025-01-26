@@ -183,8 +183,12 @@ curl -X GET "http://localhost/restaurante/back/api/relatorios.php?view=ordens_pr
 - **Caminho:** `restaurante/back/api/usuario.php`
 - **Caminho para Testes CURL:** `restaurante/testes/api/usuario`
 
-### Exemplo de Requisição
-Criar um usuário:
+## Operações Disponíveis
+
+### Criar Usuário
+**Método:** `POST`
+
+- **Requisição:**
 ```bash
 curl -X POST "http://localhost/restaurante/back/api/usuario.php" \
 -H "Content-Type: application/json" \
@@ -193,6 +197,144 @@ curl -X POST "http://localhost/restaurante/back/api/usuario.php" \
     "email": "joao.silva@email.com",
     "senha": "123456"
 }'
+```
+
+- **Campos:**
+  - `nome` (obrigatório): Nome completo do usuário.
+  - `email` (obrigatório): Endereço de email válido e único.
+  - `senha` (obrigatório): Senha com pelo menos 6 caracteres.
+
+- **Respostas Possíveis:**
+  - Sucesso:
+    ```json
+    {
+      "ok": true,
+      "mensagem": "Usuario criado com sucesso",
+      "id": 1
+    }
+    ```
+  - Erro (exemplo):
+    ```json
+    {
+      "ok": false,
+      "mensagem": "E-mail ja cadastrado"
+    }
+    ```
+
+### Atualizar Usuário
+**Método:** `PUT`
+
+- **Requisição:**
+```bash
+curl -X PUT "http://localhost/restaurante/back/api/usuario.php" \
+-H "Content-Type: application/json" \
+-d '{
+    "id": 1,
+    "nome": "João Atualizado",
+    "email": "joao.atualizado@email.com"
+}'
+```
+
+- **Campos:**
+  - `id` (obrigatório): Identificador do usuário.
+  - `nome` (opcional): Novo nome completo.
+  - `email` (opcional): Novo email válido e único.
+  - `senha` (opcional): Nova senha com pelo menos 6 caracteres.
+  - `ativo` (opcional): Status do usuário (ativo/inativo).
+
+- **Respostas Possíveis:**
+  - Sucesso:
+    ```json
+    {
+      "ok": true,
+      "mensagem": "usuario atualizado com sucesso",
+      "rows": 1
+    }
+    ```
+  - Erro (exemplo):
+    ```json
+    {
+      "ok": false,
+      "mensagem": "E-mail ja está sendo usado por outro usuario"
+    }
+    ```
+
+### Deletar Usuário
+**Método:** `DELETE`
+
+- **Requisição:**
+```bash
+curl -X DELETE "http://localhost/restaurante/back/api/usuario.php" \
+-H "Content-Type: application/json" \
+-d '{
+    "id": "1,2,3"
+}'
+```
+
+- **Campos:**
+  - `id` (obrigatório): ID(s) do(s) usuário(s) a ser(em) deletado(s), separados por vírgula.
+
+- **Respostas Possíveis:**
+  - Sucesso:
+    ```json
+    {
+      "ok": true,
+      "mensagem": "Registro deletado com sucesso"
+    }
+    ```
+  - Erro (exemplo):
+    ```json
+    {
+      "ok": false,
+      "mensagem": "Nao e possivel deletar usuario pois outros registros dependem deste"
+    }
+    ```
+
+### Login de Usuário
+**Método:** `POST`
+
+- **Requisição:**
+```bash
+curl -X POST "http://localhost/restaurante/back/api/usuario.php" \
+-H "Content-Type: application/json" \
+-d '{
+    "email": "joao.silva@email.com",
+    "senha": "123456",
+    "login": "true"
+}'
+```
+
+- **Campos:**
+  - `email` (obrigatório): Endereço de email do usuário.
+  - `senha` (obrigatório): Senha do usuário.
+  - `login` (opcional): Necessário para informar que você quer realizar login
+  - `token` (opcional): Token para autenticação automática.
+
+- **Respostas Possíveis:**
+  - Sucesso (com token):
+    ```json
+    {
+      "ok": true,
+      "mensagem": "Login realizado com sucesso",
+      "token": "abcdef123456"
+    }
+    ```
+  - Erro (exemplo):
+    ```json
+    {
+      "ok": false,
+      "mensagem": "E-mail ou senha incorretos"
+    }
+    ```
+
+### Estrutura de Resposta Genérica
+Todas as respostas seguem o formato:
+```json
+{
+  "ok": true|false,
+  "mensagem": "Mensagem descritiva",
+  "dados": { ... }
+}
 ```
 ---
 
