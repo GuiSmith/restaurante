@@ -71,6 +71,4 @@ function delete()
     if (isset($_GET['id'])) {
         return $usuario_obj->deletar($_GET);
     }
-
-    return criar_mensagem(false,'Informe um token para realizar logout e um id para deletar usuarios');
 }
