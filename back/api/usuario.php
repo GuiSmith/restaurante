@@ -29,7 +29,7 @@ try {
                 'POST' => post($input),
                 'GET' => $usuario->search($_GET),
                 'PUT' => $usuario->atualizar($input),
-                'DELETE' => delete(),
+                'DELETE' => $usuario->deletar($_GET),
                 default => methodNotAllowed()
             };
         }
@@ -44,31 +44,27 @@ echo json_encode($response);
 
 // Funções para cada método HTTP
 
-// Processa requisições POST.
-//CRIAR ou LOGIN
+// Processa requisições POST
+// Criar usuário, login e logout
 function post(array $data): array
 {
     $usuario = new Usuario();
+    
+    // Verifica se foi informado login e logout ao mesmo tempo
+    if(isset($data['login']) && isset($data['logout'])){
+        return criar_mensagem(false,'Informe apenas login ou logout', $data);
+    }
+
+    // Login
     if(isset($data['login']) && $data['login']){
         return $usuario->login($data);
-    }else{
-        return $usuario->criar($data);
-    }
-}
-
-// Processa requisições DELETE
-//DELETAR ou LOGOUT
-function delete()
-{
-    $usuario_obj = new Usuario();
-
-    //Log out
-    if(isset($_GET['token'])){
-        return $usuario_obj->logout($_GET['token']);
     }
 
-    //Deletar usuário
-    if (isset($_GET['id'])) {
-        return $usuario_obj->deletar($_GET);
+    // Log out
+    if(isset($data['logout']) && $data['logout']){
+        return $usuario->logout($data['logout']);
     }
+
+    // Criar usuário
+    return $usuario->criar($data);
 }
