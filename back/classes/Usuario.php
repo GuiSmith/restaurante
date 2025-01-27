@@ -25,18 +25,15 @@ class Usuario extends CRUDModel
     public function criar(array $data): array
     {
         $dados_obrigatorios = ['nome', 'email', 'senha'];
-        $dados_permitidos = [];
-        //Tratar dados nulos
-        if (empty($data)){
-            return criar_mensagem(false,"Informe os campos obrigatorios: ".implode(',',$dados_obrigatorios));
+        $dados_permitidos = ['token'];
+        // Valida dados passados
+        if(array_keys_exists($data, $dados_obrigatorios)){
+            return criar_mensagem(
+                false,
+                'Há dados faltantes',
+                ['obrigatorios' => $dados_obrigatorios,'permitidos' => $dados_permitidos]
+            );
         }
-        // Verificar dados obrigatórios
-        if(!array_keys_exists($data,$dados_obrigatorios)){
-            return criar_mensagem(false,"Informe os campos obrigatorios: ".implode(',',$dados_obrigatorios));
-        }
-        //Retirar dados não necessários
-        $data = array_intersect_key($data,array_flip(array_merge($dados_obrigatorios,$dados_permitidos)));
-
         // Nome
         if (empty($data['nome'])) {
             return criar_mensagem(false,'Nome vazio, informe um nome valido');
@@ -73,21 +70,14 @@ class Usuario extends CRUDModel
     public function atualizar(array $data): array
     {
         $dados_obrigatorios = ['id'];
-        $dados_opcionais = ['nome','email','senha','ativo'];
-        $dados_permitidos = [];
-        //Tratando quando nenhum dado é enviado
-        if (empty($data)) {
-            return criar_mensagem(false, 'Nenhum dado foi enviado. Dados obrigatorios: '.
-                implode(', ',$dados_obrigatorios).". ".
-                "Dados opcionais: ".
-                implode(', ', $dados_opcionais)
+        $dados_permitidos = ['nome','email','senha','ativo','token'];
+        // Valida dados passados
+        if(array_keys_exists($data, $dados_obrigatorios)){
+            return criar_mensagem(
+                false,
+                'Há dados faltantes',
+                ['obrigatorios' => $dados_obrigatorios,'permitidos' => $dados_permitidos]
             );
-        }
-        //Retirando dados desnecessários
-        $data = array_intersect_key($data,array_flip(array_merge($dados_obrigatorios,$dados_opcionais,$dados_permitidos)));
-        // ID obrigatório
-        if (!isset($data['id'])) {
-            return ['ok' => false, 'mensagem' => 'ID e obrigatório'];
         }
 
         // Nome válido
@@ -121,18 +111,15 @@ class Usuario extends CRUDModel
     public function deletar($data): array
     {
         $dados_obrigatorios = ['id'];
-        $dados_permitidos = [];
-        //Tratando vazio
-        if (empty($data)){
-            return criar_mensagem(false,'ID e necessario para deletar usuarios');
+        $dados_permitidos = ['token'];
+        // Valida dados passados
+        if(array_keys_exists($data, $dados_obrigatorios)){
+            return criar_mensagem(
+                false,
+                'Há dados faltantes',
+                ['obrigatorios' => $dados_obrigatorios,'permitidos' => $dados_permitidos]
+            );
         }
-        //Retirando dados necessários
-        $data = array_intersect_key($data,array_flip(array_merge($dados_obrigatorios,$dados_permitidos)));
-        //Verificando IDs
-        if(!isset($data['id'])){
-            return criar_mensagem(false,'ID e necessario para deletar usuarios');
-        }
-
         // Deletar no banco
         try {
             $data['id'] = explode(',',$data['id']);
@@ -161,7 +148,7 @@ class Usuario extends CRUDModel
         $dados_permitidos = ['token','email','senha'];
         //Tratando quando dados não são enviados
         if (empty($data)) {
-            return criar_mensagem(false,'Informe login e senha ou token para realizar login');
+            return criar_mensagem(false,'Informe login e senha ou token para realizar login',$data);
         }
         //Retirando dados desneccessários
         $data = array_intersect_key($data,array_flip($dados_permitidos));
@@ -172,15 +159,18 @@ class Usuario extends CRUDModel
             if (!$usuario) {
                 return criar_mensagem(false,'Token nao encontrado, realize login com email e senha');
             }else{
-                if ($this->token_expirado($usuario['data_hora_expiracao_token'])) {
-                    $this->inutilizar_token($data['token'], $usuario['id']);
-                    return criar_mensagem(false,'Token expirado, realize login com email e senha');
+                if($usuario['data_hora_expiracao_token'] == null || $usuario['data_hora_expiracao_token'] == ''){
+                    return criar_mensagem(false,'Token invalido, realize login com email e senha');
+                }else{
+                    if ($this->token_expirado($data['token'])) {
+                        return criar_mensagem(false,'Token expirado, realize login com email e senha');
+                    }
                 }
             }
         }else {
             // Login com email e senha
             if(!isset($data['email']) || !isset($data['senha'])){
-                return criar_mensagem(false,'Informe login e senha ou token para realizar login');
+                return criar_mensagem(false,'Informe login e senha ou token para realizar login',$data);
             }else{
                 if(empty($data['email']) || empty($data['senha'])){
                     return criar_mensagem(false,'Login ou senha vazios. Informe login e senha ou token para realizar login');
@@ -191,19 +181,20 @@ class Usuario extends CRUDModel
             //Checando senha
             if (!$usuario || !password_verify($data['senha'], $usuario['senha'])) {
                 return criar_mensagem(false, 'Credenciais invalidas');
-                //Por questões de segurança, é ideal dizer que credenciais estão invalidas do que dizer se só a senha está errada, se email não foi encontrado, etc.
             }
         }
 
         // Atualiza ou gera um token
-        if (empty($usuario['token']) || $this->token_expirado($usuario['data_hora_expiracao_token'])) {
+        if (is_null($usuario['token']) || $this->token_expirado($usuario['token'])) {
+            // Gerar token
             $token = bin2hex(random_bytes(32));
-            $expiracao = date('Y-m-d H:i:s', strtotime('+1 year'));
-            $this->atualizar_token($usuario['id'], $token, $expiracao);
         } else {
+            // Manter token
             $token = $usuario['token'];
-            $expiracao = $usuario['data_hora_expiracao_token'];
         }
+        // Atualizar token
+        $expiracao = date('Y-m-d H:i:s', strtotime('+1 year'));
+        $this->atualizar_token($usuario['id'], $token, $expiracao);
         return criar_mensagem(true, 'Login realizado com sucesso', ['token' => $token, 'data_hora_expiracao_token' => $expiracao]);
     }
 
@@ -217,7 +208,7 @@ class Usuario extends CRUDModel
         if (!$usuario) {
             return criar_mensagem(false, 'Token nao encontrado');
         }
-        $linhas_afetadas = $this->inutilizar_token($token, $usuario['id']);
+        $linhas_afetadas = $this->inutilizar_token($usuario['id']);
         if($linhas_afetadas > 0){
             return criar_mensagem(true, 'Log out realizado com sucesso!');
         }else{
@@ -233,34 +224,52 @@ class Usuario extends CRUDModel
         }
         $usuario = $this->search(['token' => $token], $fields);
         $usuario = $usuario[0] ?? null;
-        if($usuario != null){
-            if($this->token_expirado($usuario['data_hora_expiracao_token'])){
-                return ['ok' => false,'mensagem' => 'token expirado'];
-            }
-        }
         return $usuario;
     }
 
-    // Função para verificar se o token está expirado
-    protected function token_expirado($dataExpiracao): bool
-    {
-        return strtotime($dataExpiracao) < strtotime('now');
-    }
-
-    // Função para atualizar o token
-    private function atualizar_token(int $id, string $token, string $expiracao): void
-    {
-        $this->update(
-            ['token' => $token, 'data_hora_expiracao_token' => $expiracao, 'id' => $id]
-        );
-    }
-
     // Função para inutilizar um token
-    private function inutilizar_token(string $token, $id)
+    private function inutilizar_token($id)
     {
         $linhas_afetadas = $this->update(
             ['token' => null, 'data_hora_expiracao_token' => null, 'id' => $id]
         );
         return $linhas_afetadas;
+    }
+
+    // Função que atualiza o token de um usuário
+    public function atualizar_token($id, $token, $expiracao): int
+    {
+        $linhas_afetadas = $this->update(
+            ['token' => $token, 'data_hora_expiracao_token' => $expiracao, 'id' => $id]
+        );
+        return $linhas_afetadas;
+    }
+
+    // Função que verifica se token está expirado
+    public function token_expirado($token): bool
+    {
+        $usuario = $this->buscar_por_token($token, ['data_hora_expiracao_token']);
+        if (!$usuario) {
+            return true;
+        }
+        if (strtotime($usuario['data_hora_expiracao_token']) < strtotime('now')) {
+            return true;
+        }
+        return false;
+    }
+
+    // Função que valida se um token é válido
+    public function token_valido($token): bool
+    {
+        $usuario = $this->buscar_por_token($token, ['id']);
+        // Se existe
+        if (!$usuario) {
+            return false;
+        }
+        // Se está expirado
+        if ($this->token_expirado($token)) {
+            return false;
+        }
+        return true;
     }
 }

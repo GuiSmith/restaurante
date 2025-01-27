@@ -1,11 +1,6 @@
 <?php
 require_once '../classes/Usuario.php';
-
-// Configurar cabeçalhos HTTP
-header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
+require_once 'config.php';
 
 // Obter o método da requisição
 $method = $_SERVER['REQUEST_METHOD'];
@@ -17,20 +12,26 @@ $response = []; // Inicializa a resposta
 $usuario = new Usuario();
 
 try {
-    $response = match ($method) {
-        'GET' => $usuario->search($_GET),
-        'POST' => post( $input),
-        'PUT' => $usuario->atualizar($input),
-        'DELETE' => delete(),
-        default => methodNotAllowed()
-    };
-    if(isset($response['status'])){
-        http_response_code($response['status']);
+    // Verifica o que fazer de acordo com o método HTTP
+    if ($method === 'POST' && get_token() == '') {
+        // Login ou criar usuário
+        $response = post($input);
     }else{
-        if(isset($response['ok'])){
-            http_response_code( $response['ok'] ? 200 : 400);
+        // Verificar se usuário está autenticado
+        if(!auth()){
+            // Não autorizado
+            http_response_code(401);
+            $response = criar_mensagem(false,'Não autorizado, faça login para continuar');
         }else{
-            http_response_code(200);
+            // Autorizado
+            $input['token'] = get_token();
+            $response = match ($method) {
+                'POST' => post($input),
+                'GET' => $usuario->search($_GET),
+                'PUT' => $usuario->atualizar($input),
+                'DELETE' => $usuario->deletar($_GET),
+                default => methodNotAllowed()
+            };
         }
     }
 } catch (Exception $e) {
@@ -43,40 +44,27 @@ echo json_encode($response);
 
 // Funções para cada método HTTP
 
-// Processa requisições POST.
-//CRIAR ou LOGIN
+// Processa requisições POST
+// Criar usuário, login e logout
 function post(array $data): array
 {
     $usuario = new Usuario();
+    
+    // Verifica se foi informado login e logout ao mesmo tempo
+    if(isset($data['login']) && isset($data['logout'])){
+        return criar_mensagem(false,'Informe apenas login ou logout', $data);
+    }
+
+    // Login
     if(isset($data['login']) && $data['login']){
         return $usuario->login($data);
-    }else{
-        return $usuario->criar($data);
-    }
-}
-
-// Processa requisições DELETE
-//DELETAR ou LOGOUT
-function delete()
-{
-    $usuario_obj = new Usuario();
-
-    //Log out
-    if(isset($_GET['token'])){
-        return $usuario_obj->logout($_GET['token']);
     }
 
-    //Deletar usuário
-    if (isset($_GET['id'])) {
-        return $usuario_obj->deletar($_GET);
+    // Log out
+    if(isset($data['logout']) && $data['logout']){
+        return $usuario->logout($data['logout']);
     }
 
-    return criar_mensagem(false,'Informe um token para realizar logout e um id para deletar usuarios');
-}
-
-// Método não permitido
-function methodNotAllowed(): array
-{
-    http_response_code(405); // Método não permitido
-    return criar_mensagem(false, 'Metodo nao suportado');
+    // Criar usuário
+    return $usuario->criar($data);
 }

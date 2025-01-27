@@ -16,8 +16,14 @@ class Comanda extends CRUDModel
     public function abrir($data = [])
     {
         $dados_permitidos = ['token'];
-        //Retirando dados desnecessários
-        $data = !empty($data) ? array_intersect_key($data,array_flip($dados_permitidos)) : [];
+        // Valida dados passados
+        if(!array_keys_exists($data, $dados_permitidos)){
+            return criar_mensagem(
+                false, 
+                'Há dados faltantes',
+                ['informados' => $data,'permitidos'=>$dados_permitidos]
+                );
+        }
         //Definindo status de comanda para aberta
         $data['status'] = 'aberta';
         try {
@@ -30,11 +36,15 @@ class Comanda extends CRUDModel
 
     public function fechar($data)
     {
-        $dados_permitidos = ['id','token'];
-        $data = !empty($data) ? array_intersect_key($data, array_flip($dados_permitidos)) : [];
-        //ID para poder atualizar registro
-        if (!isset($data['id'])) {
-            return criar_mensagem(false, 'Informe o ID para fechar a comanda.');
+        $dados_obrigatorios = ['id'];
+        $dados_permitidos = ['token'];
+        // Valida dados passados
+        if(!array_keys_exists($data, $dados_obrigatorios)){
+            return criar_mensagem(
+                false, 
+                'Há dados faltantes',
+                ['informados' => $data, 'obrigatorios' => $dados_obrigatorios, 'permitidos' => $dados_permitidos]
+            );
         }
         $itens_abertos = $this->itens_abertos($data['id']); 
         if($itens_abertos){
@@ -57,13 +67,13 @@ class Comanda extends CRUDModel
     {
         $dados_obrigatorios = ['id'];
         $dados_permitidos = ['token'];
-        //Tratando vazio
-        if (empty($data)){
-            return criar_mensagem(false,'Informe o ID para deletar a comanda');
-        }else{
-            if(!array_keys_exists($data,$dados_obrigatorios)){
-                return criar_mensagem(false,"Informe os seguintes para deletar comanda: ".implode(',',$dados_obrigatorios));
-            }
+        // Valida dados passados
+        if(!array_keys_exists($data, $dados_obrigatorios)){
+            return criar_mensagem(
+                false, 
+                'Há dados faltantes',
+                ['informados' => $data, 'obrigatorios' => $dados_obrigatorios, 'permitidos' => $dados_permitidos]
+            );
         }
         //Deletando
         try{

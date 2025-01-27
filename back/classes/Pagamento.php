@@ -18,31 +18,18 @@ class Pagamento extends CRUDModel
     {
         $dados_obrigatorios = ['id_comanda', 'forma_pagamento', 'valor'];
         $dados_permitidos = ['token'];
-        //Tratando quando dados não são enviados
-        if (empty($data)){
-            return criar_mensagem(false,'Nenhum dado foi enviado, informe dados obrigatorios: '
-                .implode(', ', $dados_obrigatorios)
-            );
-        }
-        //Retirando somente as chaves necessárias
-        $data = array_intersect_key($data, array_flip(array_merge($dados_obrigatorios, $dados_permitidos)));
-        //Checando vazio
+        // Valida dados passados
         if (!array_keys_exists($data, $dados_obrigatorios)) {
             return criar_mensagem(
-                false, 
-                "Informe os campos obrigatorios: "
-                .implode(', ', $dados_obrigatorios)
-                .". Voce informou: "
-                .implode(", ", array_keys($data)));
+                false,
+                'Há dados faltantes',
+                ['obrigatorios' => $dados_obrigatorios,'permitidos' => $dados_permitidos]);
         }
-        //Forma pagamento
         if (!in_array($data['forma_pagamento'],static::$formas_pagamento)) {
             return criar_mensagem(
                 false,
-                'Tipo invalido, informe um dos seguintes: '
-                .implode(', ',static::$formas_pagamento)
-                .". Voce informou "
-                .$data['forma_pagamento']
+                'Forma de pagamento invalida',
+                ['formas_pagamento' => static::$formas_pagamento]
             );
         }else{
             $data['forma_pagamento'] = strtoupper($data['forma_pagamento']);
@@ -73,15 +60,13 @@ class Pagamento extends CRUDModel
     public function deletar($data){
         $dados_obrigatorios = ['id'];
         $dados_permitidos = ['token'];
-        //Tratando vazio
-        if (empty($data)){
-            return criar_mensagem(false,'ID e necessario para deletar usuarios');
-        }
-        //Retirando dados necessários
-        $data = array_intersect_key($data,array_flip(array_merge($dados_obrigatorios,$dados_permitidos)));
-        //Verificando IDs
-        if(!isset($data['id'])){
-            return criar_mensagem(false,'ID e necessario para deletar usuarios');
+        // Valida dados passados
+        if (!array_keys_exists($data, $dados_obrigatorios)) {
+            return criar_mensagem(
+                false,
+                'Há dados faltantes',
+                ['obrigatorios' => $dados_obrigatorios,'permitidos' => $dados_permitidos]
+        );
         }
         //Deletando
         try{

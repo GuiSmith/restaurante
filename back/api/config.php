@@ -47,4 +47,34 @@
 
     }
 
+    // Função que recebe o header de autorização e retorna o token
+    function get_token()
+    {
+        // Pega todos os cabeçalhos
+        $headers = getallheaders();
+        // Verifica se o cabeçalho Authorization existe
+        if(isset($headers['Authorization'])){
+            // Pega o cabeçalho Authorization
+            $header = $headers['Authorization'];
+            $parts = explode(' ', $header);
+            if(count($parts) == 2){
+                return $parts[1];
+            }else{
+                return '';
+            }
+        }else{
+            return '';
+        }
+    }
+
+    // Função que verifica se o token é válido
+    function auth(){
+        $token = get_token();
+        if($token == ''){
+            return false;
+        }
+        require_once '../classes/Usuario.php';
+        $usuario = new Usuario();
+        return $usuario->token_valido($token);
+    }
 ?>
