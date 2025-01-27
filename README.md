@@ -9,66 +9,40 @@
 ---
 ## Estrutura do Projeto
 ``` bash
+# 7 directories, 26 files
 restaurante/
 ├── back
-│   ├── api
-│   │   ├── comanda.php
-│   │   ├── config.php
-│   │   ├── itemcomanda.php
-│   │   ├── item.php
-│   │   ├── log.php
-│   │   ├── pagamento.php
-│   │   ├── relatorios.php
-│   │   └── usuario.php
-│   ├── classes
-│   │   ├── Comanda.php
-│   │   ├── CRUDModel.php
-│   │   ├── Database.php
-│   │   ├── ItemComanda.php
-│   │   ├── Item.php
-│   │   ├── Log.php
-│   │   ├── Pagamento.php
-│   │   ├── Relatorios.php
-│   │   └── Usuario.php
-│   ├── functions.php
-│   ├── migration
-│   │   ├── drop.php
-│   │   ├── index.php
-│   │   └── Migration.php
-│   └── testes
-│       ├── bash
-│       │   ├── comanda
-│       │   ├── fluxo
-│       │   ├── fluxo_gpt
-│       │   ├── item
-│       │   ├── itemcomanda
-│       │   ├── pagamento
-│       │   ├── relatorios
-│       │   └── usuario
-│       ├── classes
-│       │   ├── comanda.php
-│       │   ├── fluxo.php
-│       │   ├── itemcomanda.php
-│       │   ├── item.php
-│       │   ├── log.php
-│       │   └── pagamento.php
-│       ├── index.php
-│       ├── python
-│       │   ├── config.py
-│       │   ├── __pycache__
-│       │   │   ├── config.cpython-312.pyc
-│       │   │   ├── test_item.cpython-312-pytest-7.4.4.pyc
-│       │   │   └── test_usuario.cpython-312-pytest-7.4.4.pyc
-│       │   ├── test_item.py
-│       │   └── test_usuario.py
-│       └── utils.php
+│   ├── api
+│   │   ├── comanda.php
+│   │   ├── config.php
+│   │   ├── itemcomanda.php
+│   │   ├── item.php
+│   │   ├── log.php
+│   │   ├── pagamento.php
+│   │   ├── relatorios.php
+│   │   └── usuario.php
+│   ├── classes
+│   │   ├── Comanda.php
+│   │   ├── CRUDModel.php
+│   │   ├── Database.php
+│   │   ├── ItemComanda.php
+│   │   ├── Item.php
+│   │   ├── Log.php
+│   │   ├── Pagamento.php
+│   │   ├── Relatorios.php
+│   │   └── Usuario.php
+│   ├── functions.php
+│   └── migration
+│       ├── drop.php
+│       ├── index.php
+│       └── Migration.php
 ├── documentos
-│   ├── diagramas
-│   │   ├── banco_modelo_conceitual.brM3
-│   │   └── banco_modelo_logico.brM3
-│   ├── feedback.pdf
-│   └── requisitos.pdf
-├── README.md
+│   ├── diagramas
+│   │   ├── banco_modelo_conceitual.brM3
+│   │   └── banco_modelo_logico.brM3
+│   ├── feedback.pdf
+│   └── requisitos.pdf
+└── README.md
 ```
 ## Caminhos da API
 Aqui você verá os caminhos disponíveis para interagir com a API do sistema de restaurante. Para cada requisito, temos o caminho correspondente e exemplos de requisições utilizando `cURL` para facilitar os testes.
