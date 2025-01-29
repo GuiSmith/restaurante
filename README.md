@@ -3,6 +3,7 @@
 - [Cadastro de itens do cardápio](#itens-de-cardápio)
 - [Permitir abrir e fechar comandas](#comandas)
 - [Permitir adicionar itens do cardápio em uma comanda](#itens-do-cardápio-em-uma-comanda)
+- [Permitir pagar comanda fechada](#pagamentos)
 - [Enviar Ordens de Produção para Copa e Cozinha](#relatórios)
 - [Relatório de vendas diária](#relatórios)
 - [Usuários](#usuários)
@@ -46,15 +47,15 @@ restaurante/
 ```
 ## Caminhos da API
 Aqui você verá os caminhos disponíveis para interagir com a API do sistema de restaurante. Para cada requisito, temos o caminho correspondente e exemplos de requisições utilizando `cURL` para facilitar os testes.
-### Itens de cardápio
+### Itens
 - **Caminho:** `restaurante/back/api/item.php`
-#### Cadastro de itens de cardápio
+#### Cadastro
 **Método:** `POST`
 - **Campos:**
   - `valor` (obrigatório): Valor do item.
   - `descricao` (obrigatório): Descrição do item.
   - `tipo` (obrigatório): Tipo do item, pode ser `BEBIDA` ou `PRATO`.
-```bash
+``` bash
 curl -X POST "http://localhost/restaurante/back/api/item.php" \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer abc123456" \
@@ -64,7 +65,7 @@ curl -X POST "http://localhost/restaurante/back/api/item.php" \
     "tipo": "prato"
 }'
 ```
-#### Listar itens de cardápio
+#### Listagem
 **Método:** `GET`
 ``` bash
  # Listar todos
@@ -75,7 +76,7 @@ curl -X GET "http://localhost/restaurante/back/api/item.php" \
 curl -X GET "http://localhost/restaurante/back/api/item.php?id=3" \
 -H "Authorization: Bearer abc123456" \
 ```
-#### Atualizar itens de cardápio
+#### Atualização
 **Método:** `PUT`
 - **Campos:**
   - `id` (obrigatório): identificação do item.
@@ -91,7 +92,7 @@ curl -X PUT "http://localhost/restaurante/back/api/item.php" \
     "descricao":"Teste de edicao"
 }'
 ```
-#### Deletar itens de cardápio
+#### Deleção
 **Método:** `DELETE`
 - **Campos:**
   - `id` (obrigatório): identificação do item.
@@ -101,13 +102,13 @@ curl -X DELETE "http://localhost/restaurante/back/api/item.php?id=3" \
 ```
 ### Comandas
 - **Caminho:** `restaurante/back/api/comanda.php`
-#### Abrir comanda
+#### Abertura/Cadastro
 **Método:** `POST`
 ```bash
 curl -X POST "http://localhost/restaurante/back/api/comanda.php" \
 -H "Authorization: Bearer abc123456"
 ```
-#### Listar comanda
+#### Listagem
 **Método:** `GET`
 - **Campos:**
   - `id` (obrigatório): identificação do item.
@@ -123,7 +124,7 @@ curl -X GET "http://localhost/restaurante/back/api/comanda.php" \
 curl -X GET "http://localhost/restaurante/back/api/comanda.php?id=3" \
 -H "Authorization: Bearer abc123456"
 ```
-#### Fechar comanda
+#### Fechamento/Atualização
 **Método:** `PUT`
 - **Campos:**
   - `id` (obrigatório): identificação da comanda.
@@ -135,7 +136,7 @@ curl -X PUT "http://localhost/restaurante/back/api/comanda.php" \
     "id": "3"
 }'
 ```
-#### Deletar comanda
+#### Deleção
 **Método:** `DELETE`
 - **Campos:**
   - `id` (obrigatório): identificação da comanda.
@@ -143,9 +144,9 @@ curl -X PUT "http://localhost/restaurante/back/api/comanda.php" \
 curl -X DELETE "http://localhost/restaurante/back/api/comanda.php?id=3" \
 -H "Authorization: Bearer abc123456"
 ```
-### Itens do Cardápio em uma Comanda
+### Itens de comanda
 - **Caminho:** `restaurante/back/api/itemcomanda.php`
-#### Adicionar um item na comanda
+#### Cadastro
 **Método:** `POST`
 - **Campos:**
   - `id_comanda` (obrigatório): identificação da comanda.
@@ -165,7 +166,7 @@ curl -X POST "http://localhost/restaurante/back/api/itemcomanda.php" \
     "isento": "false"
 }'
 ```
-#### Listar itens da comanda
+#### Listagem
 **Método:** `GET`
 ``` bash
  # Listar todos
@@ -176,7 +177,7 @@ curl -X GET "http://localhost/restaurante/back/api/itemcomanda.php" \
 curl -X GET "http://localhost/restaurante/back/api/itemcomanda.php?id=3" \
 -H "Authorization: Bearer abc123456" \
 ```
-#### Atualizar um item da comanda
+#### Atualização
 **Método:** `PUT`
 - **Campos:**
   - `id` (obrigatório): identificação do item da comanda.
@@ -192,7 +193,7 @@ curl -X PUT "http://localhost/restaurante/back/api/itemcomanda.php" \
     "status": "pronto"
 }'
 ```
-#### Deletar itens na comanda
+#### Deleção
 **Método:** `DELETE`
 - **Campos:**
   - `id` (obrigatório): identificação do item da comanda.
@@ -200,15 +201,47 @@ curl -X PUT "http://localhost/restaurante/back/api/itemcomanda.php" \
 curl -X DELETE "http://localhost/restaurante/back/api/itemcomanda.php?id=3" \
 -H "Authorization: Bearer abc123456"
 ```
+### Pagamento
+- **Caminho** `restaurante/back/api/pagamento.php`
+#### Cadastro
+**Método:** `POST`
+- **Campos:**
+ - `id_comanda` (obrigatório): Identificação da comanda
+ - `forma_pagamento` (obrigatório): Forma de pagamento
+ - `valor` (obrigatório): Valor do pagamento
+``` bash
+curl -X POST "http://localhost/restaurante/back/api/pagamento.php" \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer acb123456" \
+-d '{
+  "id_comanda": "1",
+  "forma_pagamento": "PIX",
+  "valor": "4.99"
+}'
+```
+#### Listagem
+**Método:** `GET`
+``` bash
+curl -X GET "http://localhost/restaurante/back/api/pagamento.php" \
+-H "Authorization: Bearer acb123456"
+```
+#### Deleção
+**Método:** `DELETE`
+- **Campos:**
+ - `id` (obrigatório): Identificação do pagamento
+``` bash
+curl -X DELETE "http://localhost/restaurante/back/api/pagamento.php?id=1" \
+-H "Authorization: Bearer acb123456"
+```
 ### Relatórios
 - **Caminho:** `restaurante/back/api/relatorios.php`
-#### Listar relatórios
+#### Listagem
 **Método:** `GET`
 ``` bash
 curl -X GET "http://localhost/restaurante/back/api/relatorios.php" \
 -H "Authorization: Bearer abc123456"
 ```
-#### Visualizar relatórios
+#### Visualização
 **Método:** `GET`
 **Campos:**
 - `view` (obrigatório): nome do relatório, liste para ver os nomes disponíveis
@@ -217,14 +250,12 @@ curl -X GET "http://localhost/restaurante/back/api/relatorios.php?view=ordens_pr
 ```
 ### Usuários
 - **Caminho:** `restaurante/back/api/usuario.php`
-- **Caminho para Testes CURL:** `restaurante/testes/api/usuario`
-
-## Operações Disponíveis
-
-### Criar Usuário
+#### Cadastro
 **Método:** `POST`
-
-- **Requisição:**
+- **Campos:**
+  - `nome` (obrigatório): Nome completo do usuário.
+  - `email` (obrigatório): Endereço de email válido e único.
+  - `senha` (obrigatório): Senha com pelo menos 6 caracteres.
 ```bash
 curl -X POST "http://localhost/restaurante/back/api/usuario.php" \
 -H "Content-Type: application/json" \
@@ -234,12 +265,6 @@ curl -X POST "http://localhost/restaurante/back/api/usuario.php" \
     "senha": "123456"
 }'
 ```
-
-- **Campos:**
-  - `nome` (obrigatório): Nome completo do usuário.
-  - `email` (obrigatório): Endereço de email válido e único.
-  - `senha` (obrigatório): Senha com pelo menos 6 caracteres.
-
 - **Respostas Possíveis:**
   - Sucesso:
     ```json
@@ -256,11 +281,14 @@ curl -X POST "http://localhost/restaurante/back/api/usuario.php" \
       "mensagem": "E-mail ja cadastrado"
     }
     ```
-
-### Atualizar Usuário
+#### Atualização
 **Método:** `PUT`
-
-- **Requisição:**
+- **Campos:**
+  - `id` (obrigatório): Identificador do usuário.
+  - `nome` (opcional): Novo nome completo.
+  - `email` (opcional): Novo email válido e único.
+  - `senha` (opcional): Nova senha com pelo menos 6 caracteres.
+  - `ativo` (opcional): Status do usuário (ativo/inativo).
 ```bash
 curl -X PUT "http://localhost/restaurante/back/api/usuario.php" \
 -H "Content-Type: application/json" \
@@ -270,13 +298,6 @@ curl -X PUT "http://localhost/restaurante/back/api/usuario.php" \
     "email": "joao.atualizado@email.com"
 }'
 ```
-
-- **Campos:**
-  - `id` (obrigatório): Identificador do usuário.
-  - `nome` (opcional): Novo nome completo.
-  - `email` (opcional): Novo email válido e único.
-  - `senha` (opcional): Nova senha com pelo menos 6 caracteres.
-  - `ativo` (opcional): Status do usuário (ativo/inativo).
 
 - **Respostas Possíveis:**
   - Sucesso:
@@ -294,11 +315,10 @@ curl -X PUT "http://localhost/restaurante/back/api/usuario.php" \
       "mensagem": "E-mail ja está sendo usado por outro usuario"
     }
     ```
-
-### Deletar Usuário
+#### Deleção
 **Método:** `DELETE`
-
-- **Requisição:**
+- **Campos:**
+  - `id` (obrigatório): ID(s) do(s) usuário(s) a ser(em) deletado(s), separados por vírgula.
 ```bash
 curl -X DELETE "http://localhost/restaurante/back/api/usuario.php" \
 -H "Content-Type: application/json" \
@@ -306,10 +326,6 @@ curl -X DELETE "http://localhost/restaurante/back/api/usuario.php" \
     "id": "1,2,3"
 }'
 ```
-
-- **Campos:**
-  - `id` (obrigatório): ID(s) do(s) usuário(s) a ser(em) deletado(s), separados por vírgula.
-
 - **Respostas Possíveis:**
   - Sucesso:
     ```json
@@ -325,11 +341,13 @@ curl -X DELETE "http://localhost/restaurante/back/api/usuario.php" \
       "mensagem": "Nao e possivel deletar usuario pois outros registros dependem deste"
     }
     ```
-
-### Login de Usuário
+#### Login
 **Método:** `POST`
-
-- **Requisição:**
+- **Campos:**
+  - `email` (obrigatório): Endereço de email do usuário.
+  - `senha` (obrigatório): Senha do usuário.
+  - `login` (opcional): Necessário para informar que você quer realizar login
+  - `token` (opcional): Token para autenticação automática.
 ```bash
 curl -X POST "http://localhost/restaurante/back/api/usuario.php" \
 -H "Content-Type: application/json" \
@@ -339,13 +357,6 @@ curl -X POST "http://localhost/restaurante/back/api/usuario.php" \
     "login": "true"
 }'
 ```
-
-- **Campos:**
-  - `email` (obrigatório): Endereço de email do usuário.
-  - `senha` (obrigatório): Senha do usuário.
-  - `login` (opcional): Necessário para informar que você quer realizar login
-  - `token` (opcional): Token para autenticação automática.
-
 - **Respostas Possíveis:**
   - Sucesso (com token):
     ```json
@@ -362,7 +373,6 @@ curl -X POST "http://localhost/restaurante/back/api/usuario.php" \
       "mensagem": "E-mail ou senha incorretos"
     }
     ```
-
 ### Estrutura de Resposta Genérica
 Todas as respostas seguem o formato:
 ```json
