@@ -151,6 +151,12 @@ class Database
         $query->execute($ids);
         return $query->rowCount();
     }
+
+    //Esta função serve para retornar os dados de uma tabela, como nome, tipo, tamanho, etc.
+    public function info($table){
+        $sql = "SELECT column_name, data_type, character_maximum_length, is_nullable FROM information_schema.columns WHERE table_name = :table";
+        return $this->fetchAll($sql,['table' => $table]);
+    }
 }
 
 ?>

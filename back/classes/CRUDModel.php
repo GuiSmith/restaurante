@@ -84,6 +84,10 @@ class CRUDModel
         if (empty($conditions) && empty($fields)){
             return $this->all();
         }else{
+            //Verificando se tem algum campo 'info' no array de condições, para mostrar as informações da tabela
+            if(array_key_exists('info',$conditions) && $conditions['info'] == true){
+                return self::$db->info(static::$table);
+            }
             //Mudando valores de status para maiúsculos
             if(array_key_exists('status',$conditions)){
                 $conditions['status'] = strtoupper($conditions['status']);
