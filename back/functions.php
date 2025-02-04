@@ -8,10 +8,12 @@
 function array_keys_exists($data, $dados_obrigatorios)
 {
     if (empty($data) || is_null($data)) {
+        echo "Dados vazios ou nulos";
         return false;
     }
     foreach ($dados_obrigatorios as $dado_obrigatorio) {
         if (!isset($data[$dado_obrigatorio])) {
+            echo "Falta a chave $dado_obrigatorio";
             return false;
         }
     }
@@ -55,4 +57,9 @@ function normalizar_valor($valor)
 
     // Formata para 2 casas decimais
     return number_format($numero, 2, '.', '');
+}
+
+function paragraph($text)
+{
+    return "<p>$text</p>";
 }
