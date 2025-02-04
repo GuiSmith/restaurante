@@ -27,11 +27,11 @@ class Usuario extends CRUDModel
         $dados_obrigatorios = ['nome', 'email', 'senha'];
         $dados_permitidos = ['token'];
         // Valida dados passados
-        if(array_keys_exists($data, $dados_obrigatorios)){
+        if(!array_keys_exists($data, $dados_obrigatorios)){
             return criar_mensagem(
                 false,
                 'Há dados faltantes',
-                ['obrigatorios' => $dados_obrigatorios,'permitidos' => $dados_permitidos]
+                ['obrigatorios' => $dados_obrigatorios,'permitidos' => $dados_permitidos, 'informados' => $data]
             );
         }
         // Nome
@@ -72,7 +72,7 @@ class Usuario extends CRUDModel
         $dados_obrigatorios = ['id'];
         $dados_permitidos = ['nome','email','senha','ativo','token'];
         // Valida dados passados
-        if(array_keys_exists($data, $dados_obrigatorios)){
+        if(!array_keys_exists($data, $dados_obrigatorios)){
             return criar_mensagem(
                 false,
                 'Há dados faltantes',
@@ -113,7 +113,7 @@ class Usuario extends CRUDModel
         $dados_obrigatorios = ['id'];
         $dados_permitidos = ['token'];
         // Valida dados passados
-        if(array_keys_exists($data, $dados_obrigatorios)){
+        if(!array_keys_exists($data, $dados_obrigatorios)){
             return criar_mensagem(
                 false,
                 'Há dados faltantes',
@@ -145,13 +145,15 @@ class Usuario extends CRUDModel
     // Função de login
     public function login(array $data): array
     {
-        $dados_permitidos = ['token','email','senha'];
-        //Tratando quando dados não são enviados
-        if (empty($data)) {
-            return criar_mensagem(false,'Informe login e senha ou token para realizar login',$data);
+        $dados_permitidos = ['email','senha','token'];
+        // Validando dados
+        if (!(isset($data['token']) || (isset($data['email']) && isset($data['senha'])))) {
+            return criar_mensagem(
+            false,
+            'Informe login e senha ou token para realizar login',
+            ['informados' => $data]
+            );
         }
-        //Retirando dados desneccessários
-        $data = array_intersect_key($data,array_flip($dados_permitidos));
         //Login
         if (isset($data['token'])) {
             // Login com token
