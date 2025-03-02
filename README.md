@@ -409,10 +409,17 @@ sudo -u postgres psql
 ```sql
 CREATE DATABASE restaurante;
 ```
-#### 2.3 Criar o usuário (se necessário) e conceder permissões:
+#### 2.3 Criar o usuário:
 ```sql
-CREATE USER smith WITH PASSWORD 'sua_senha';
+CREATE USER smith WITH PASSWORD 'Dansiguer@2014';
+```
+#### 2.4 Conceder permissões
+``` sql
 GRANT ALL PRIVILEGES ON DATABASE restaurante TO smith;
+GRANT USAGE ON SCHEMA public TO smith;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO smith;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO smith;
+GRANT CREATE ON SCHEMA public TO smith;
 ```
 #### 2.4 Verifique se o banco de dados foi criado:
 ```sql
