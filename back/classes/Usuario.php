@@ -41,7 +41,11 @@ class Usuario extends CRUDModel
             $data = array_keys_filter($data, array_merge($dados_obrigatorios, $dados_permitidos));
         }
         // Ativo
-        $data['ativo'] = isset($data['ativo']) && $data['ativo'] ? 1 : 0;
+        if (isset($data['ativo'])) {
+            $data['ativo'] = $data['ativo'] ? 1 : 0;
+        } else {
+            $data['ativo'] = 1;
+        }
         // Nome
         if (empty($data['nome'])) {
             return criar_mensagem(false,'Nome vazio, informe um nome valido');
@@ -91,6 +95,10 @@ class Usuario extends CRUDModel
             );
         }
 
+        // Ativo
+        if (isset($data['ativo'])) {
+            $data['ativo'] = $data['ativo'] ? 1 : 0;
+        }
         // Nome válido
         if (isset($data['nome']) && empty($data['nome'])) {
             return ['ok' => false, 'mensagem' => 'Nome vazio, informe um nome valido'];
