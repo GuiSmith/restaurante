@@ -7,11 +7,8 @@
 */
 function array_keys_exists($data, $dados_obrigatorios)
 {
-    if (empty($data) || is_null($data)) {
-        return false;
-    }
     foreach ($dados_obrigatorios as $dado_obrigatorio) {
-        if (!isset($data[$dado_obrigatorio])) {
+        if (!array_key_exists($dado_obrigatorio, $data)) {
             return false;
         }
     }
