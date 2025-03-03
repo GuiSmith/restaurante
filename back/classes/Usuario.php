@@ -128,6 +128,20 @@ class Usuario extends CRUDModel
             }
         }
 
+        // Senha
+        if (isset($data['senha'])) {
+            $usuario_atual = $this->fetch(['id' => $data['id']]) ?? null;
+            if($usuario_atual){
+                if (password_verify($data['senha'], $usuario_atual['senha'])) {
+                    unset($data['senha']);
+                } else {
+                    $data['senha'] = password_hash($data['senha'], PASSWORD_DEFAULT);
+                }
+            }else{
+                throw new Exception("Não foi possível encontrar usuário com ID {$data['id']}", 1);
+            }
+        }
+
         // Atualizar no banco
         try {
             $linhas_afetadas = $this->update($data);
