@@ -30,7 +30,7 @@ class Usuario extends CRUDModel
         if(!array_keys_exists($data, $dados_obrigatorios)){
             return criar_mensagem(
                 false,
-                'Há dados faltantes',
+                'Há dados faltantes: '.implode(', ', array_diff(array_keys($dados_obrigatorios),array_keys($data))),
                 [
                     'obrigatorios' => $dados_obrigatorios,
                     'permitidos' => $dados_permitidos,
@@ -84,7 +84,7 @@ class Usuario extends CRUDModel
         $dados_obrigatorios = ['id'];
         $dados_permitidos = ['nome','email','senha','ativo','token'];
         // Valida dados passados
-        if(array_keys_exists($data, $dados_obrigatorios)){
+        if(!array_keys_exists($data, $dados_obrigatorios)){
             return criar_mensagem(
                 false,
                 'Há dados faltantes',
@@ -93,6 +93,8 @@ class Usuario extends CRUDModel
                     'permitidos' => $dados_permitidos,
                     'informados' => $data]
             );
+        }else{
+            $data = array_keys_filter($data,array_merge($dados_obrigatorios, $dados_permitidos));
         }
 
         // Ativo
@@ -132,12 +134,14 @@ class Usuario extends CRUDModel
         $dados_obrigatorios = ['id'];
         $dados_permitidos = ['token'];
         // Valida dados passados
-        if(array_keys_exists($data, $dados_obrigatorios)){
+        if(!array_keys_exists($data, $dados_obrigatorios)){
             return criar_mensagem(
                 false,
                 'Há dados faltantes',
                 ['obrigatorios' => $dados_obrigatorios,'permitidos' => $dados_permitidos]
             );
+        }else{
+            $data = array_keys_filter($data, array_merge($dados_obrigatorios, $dados_permitidos));
         }
         // Deletar no banco
         try {
@@ -170,7 +174,7 @@ class Usuario extends CRUDModel
             return criar_mensagem(false,'Informe login e senha ou token para realizar login',$data);
         }
         //Retirando dados desneccessários
-        $data = array_intersect_key($data,array_flip($dados_permitidos));
+        $data = array_keys_filter($data, $dados_permitidos);
         //Login
         if (isset($data['token'])) {
             // Login com token
