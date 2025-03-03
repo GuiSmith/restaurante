@@ -25,14 +25,20 @@ class Usuario extends CRUDModel
     public function criar(array $data): array
     {
         $dados_obrigatorios = ['nome', 'email', 'senha'];
-        $dados_permitidos = ['token'];
+        $dados_permitidos = ['token','ativo'];
         // Valida dados passados
-        if(array_keys_exists($data, $dados_obrigatorios)){
+        if(!array_keys_exists($data, $dados_obrigatorios)){
             return criar_mensagem(
                 false,
                 'Há dados faltantes',
-                ['obrigatorios' => $dados_obrigatorios,'permitidos' => $dados_permitidos]
+                [
+                    'obrigatorios' => $dados_obrigatorios,
+                    'permitidos' => $dados_permitidos,
+                    'informados' => $data
+                ]
             );
+        }else{
+            $data = array_keys_filter($data, array_merge($dados_obrigatorios, $dados_permitidos));
         }
         // Nome
         if (empty($data['nome'])) {
@@ -76,7 +82,10 @@ class Usuario extends CRUDModel
             return criar_mensagem(
                 false,
                 'Há dados faltantes',
-                ['obrigatorios' => $dados_obrigatorios,'permitidos' => $dados_permitidos]
+                [
+                    'obrigatorios' => $dados_obrigatorios,
+                    'permitidos' => $dados_permitidos,
+                    'informados' => $data]
             );
         }
 
