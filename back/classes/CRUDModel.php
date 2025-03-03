@@ -26,11 +26,17 @@ class CRUDModel
 
     public function insert(array $data): bool|string
     {
-        if(isset($data['status'])) {
+        if (isset($data['status'])) {
             $data['status'] = strtoupper($data['status']);
         }
+        $token = $data['token'] ?? null;
+        if ($token) {
+            unset($data['token']);
+        }
         $insert = self::$db->insert(static::$table, $data);
-        if($insert) static::$log->insert(static::$table,'INSERT',$data);
+        if ($insert) {
+            static::$log->insert(static::$table, 'INSERT', $data, $token);
+        }
         return $insert;
     }
 
