@@ -26,34 +26,77 @@ class CRUDModel
 
     public function insert(array $data): bool|string
     {
+        // Atualizando campos ENUM para maiúsculos
         if (isset($data['status'])) {
             $data['status'] = strtoupper($data['status']);
         }
+        
+        // Lidando com tokens
         $token = $data['token'] ?? null;
         if ($token) {
             unset($data['token']);
         }
+
+        // Inserindo registro
         $insert = self::$db->insert(static::$table, $data);
-        if ($insert) {
-            static::$log->insert(static::$table, 'INSERT', $data, $token);
-        }
+
+        // Registrando log
+        if ($insert) static::$log->insert(static::$table, 'INSERT', $data, $token);
         return $insert;
     }
 
     public function update(array $data)
     {
+        // Atualizando campos ENUM para maiúsculos
         if(isset($data['status'])) {
             $data['status'] = strtoupper($data['status']);
         }
+
+        // Lidando com tokens
+        $token = $data['token'] ?? null;
+        if($token){
+            unset($data['token']);
+        }
+
+        // Atualizando registro
         $linhas_afetadas = self::$db->update(static::$table, $data);
-        if($linhas_afetadas > 0) static::$log->insert(static::$table,'UPDATE',$data);
+        
+        // Registrando log
+        if($linhas_afetadas > 0) static::$log->insert(static::$table,'UPDATE',$data, $token);
         return $linhas_afetadas;
     }
 
     public function delete($data = []): bool|PDOStatement
     {
-        static::$log->insert(static::$table,'DELETE',$data);
-        return self::$db->delete(static::$table, $data['id']);
+        // Iniciando transação
+        self::$db->beginTransaction();
+        
+        try {
+            // Lidando com tokens
+            $token = $data['token'] ?? null;
+            if ($token) {
+            unset($data['token']);
+            }
+
+            // Registrando log
+            static::$log->insert(static::$table, 'DELETE', $data, $token);
+
+            // Deletando registro
+            $linhas_afetadas = self::$db->delete(static::$table, $data['id']);
+
+            // Verificando se alguma linha foi afetada
+            if ($linhas_afetadas === 0) {
+                throw new Exception("Nenhum registro foi deletado.");
+            }
+
+            // Commit se tudo der certo
+            self::$db->commit();
+            return $linhas_afetadas;
+        } catch (Exception $e) {
+            // Rollback em caso de erro
+            self::$db->rollBack();
+            throw $e;
+        }
     }
 
     public function all()
