@@ -1,15 +1,12 @@
 <?php
-    require 'functions.php';
+    require 'classes/Usuario.php';
+    // require 'classes/Database.php';
 
-    $dados = [
-        'nome' => 'gui',
-        'idade' => 18,
-        'ano_cadastro' => '2024'
-    ];
+    $db = Database::getInstance();
 
-    $dados_permitidos = ['nome','idade'];
-
-    var_dump(array_keys_filter($dados,$dados_permitidos));
+    $usuario = new Usuario();
+    var_dump($usuario);
+    var_dump($usuario->fetch(['id' => 2]));
     
 
     echo "\n";
