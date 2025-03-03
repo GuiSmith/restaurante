@@ -47,7 +47,7 @@ class Migration
                     ativo BOOLEAN NOT NULL DEFAULT TRUE,
                     data_hora_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     data_hora_atualizacao TIMESTAMP,
-                    token VARCHAR(255) UNIQUE NOT NULL,
+                    token VARCHAR(255) UNIQUE DEFAULT NULL,
                     data_hora_expiracao_token TIMESTAMP DEFAULT NULL
                 );
             ",
