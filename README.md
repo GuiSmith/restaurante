@@ -421,15 +421,26 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO smith;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO smith;
 GRANT CREATE ON SCHEMA public TO smith;
 ```
-#### 2.4 Verifique se o banco de dados foi criado:
+#### 2.5 Verifique se o banco de dados foi criado:
 ```sql
 \l
 ```
-5. **Saia do PostgreSQL**:
-
+#### 2.6 **Saia do PostgreSQL**:
 ```sql
 \q
 ```
+#### 2.7 Configure os erros de consulta
+Edite o arquivo `postgresql.conf` e adicione ou modifique as seguintes opções:
+``` bash
+logging_collector = on
+log_directory = '/var/log/postgresql'
+log_filename = 'postgresql-errors.log'
+log_statement = 'none'
+log_min_error_statement = error  # Apenas erros (não loga queries normais)
+```
+O arquivo `postgresql.conf` está provavelmente em `/etc/postgresql/16/main` se estiver usando linux
+
+OBS: note que 16 é a versão do postgresql
 
 ---
 ### 3. Configuração do PHP
