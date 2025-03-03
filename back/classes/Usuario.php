@@ -113,9 +113,18 @@ class Usuario extends CRUDModel
             }
 
             // Verificar se o e-mail pertence a outro usuário
-            $id_do_email_buscado = $this->fetch(['email' => $data['email']]);
-            if (!empty($id_do_email_buscado) && $id_do_email_buscado[0]['id'] != $data['id']) {
-                return ['ok' => false, 'mensagem' => 'E-mail ja está sendo usado por outro usuario'];
+            $usuario_buscado = $this->fetch(['email' => $data['email']])[0] ?? null;
+            if (!empty($usuario_buscado)) {
+                if ($usuario_buscado['id'] != $data['id']) {
+                    return [
+                        'ok' => false,
+                        'mensagem' => 'E-mail ja está sendo usado por outro usuario',
+                        ['usuario_buscado' => $usuario_buscado]
+                    ];
+                } else {
+                    // Se o e-mail pertence ao mesmo usuário, remover o e-mail dos dados para evitar atualização desnecessária
+                    unset($data['email']);
+                }
             }
         }
 
