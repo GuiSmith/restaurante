@@ -18,7 +18,7 @@ try {
         $response = criar_mensagem(false,'Não autorizado');
     }else{
         $response = match ($method) {
-            'GET' => $comanda->search($_GET),
+            'GET' => $comanda->buscar($_GET),
             'POST' => $comanda->abrir($input),
             'PUT' => $comanda->fechar($input),
             'DELETE' => $comanda->deletar($_GET),

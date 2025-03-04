@@ -195,7 +195,7 @@ class Usuario extends CRUDModel
             $result = $this->search($conditions,$fields,$limit,$offset);
             if(empty($result)){
                 return criar_mensagem(false,'Nenhum registro encontrado', ['query' => $params]);
-            }{
+            }else{
                 return criar_mensagem(true, 'Busca realizada com sucesso', ['lista' => $result]);
             }
         } catch (Exception $e) {

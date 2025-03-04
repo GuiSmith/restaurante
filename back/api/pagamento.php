@@ -18,7 +18,7 @@ try {
         $response = criar_mensagem(false,'Não autorizado');
     }else{
         $response = match ($method) {
-            'GET' => $pagamento->search($_GET),
+            'GET' => $pagamento->buscar($_GET),
             'POST' => $pagamento->criar($input),
             'DELETE' => $pagamento->deletar($_GET),
             default => methodNotAllowed()

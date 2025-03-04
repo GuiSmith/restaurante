@@ -124,6 +124,24 @@ class Database
 
     public function search($table, $conditions = [], $fields = [], $limit = null, $offset = null)
     {
+        // Se condições e campos forem vazios, retornar tudo
+        if(empty($conditions) && empty($fields)){
+            return $this->all();
+        }
+
+        // Mudando valores de status para maiúsculos
+        if(array_key_exists('status',$conditions)){
+            $conditions['status'] = strtoupper($conditions['status']);
+        }
+
+        // Filtrando campos de condições
+        $condition_keys = array_keys($conditions);
+        $filtered_keys = $this->filter_columns($table,$condition_keys);
+        $conditions = array_intersect_key($conditions, array_flip($filtered_keys));
+
+        // Filtrando colunas
+        $fields = $this->filter_columns($table, $fields);
+
         // Se $fields for um array, converte para uma string separada por vírgulas
         $fields = !empty($fields) ? implode(", ", $fields) : '*';
 

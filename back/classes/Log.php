@@ -1,11 +1,13 @@
 <?php
 
 require_once 'Database.php';
+require_once __DIR__."/../functions.php";
 
 class Log {
     private static $instance = null;
     private static $table = 'log';
     private static $db;
+    private static $crud_model;
 
     function __construct(){
         static::$db = Database::getInstance();
@@ -57,32 +59,42 @@ class Log {
         return self::$db->fetchAll($sql);
     }
 
-    public function search(array $conditions = [], array $fields = [])
+    public function search($data)
     {
-        //Se condições E campos forem vazios, chamar por ALL
-        if (empty($conditions) && empty($fields)){
-            $search = $this->all();
-        }else{
-            $search = self::$db->search(static::$table, $conditions, $fields);
-        }
-        return $search;
-    }
+        [$conditions, $fields, $limit, $offset] = parse_get_params($data);
 
-    // public function buscar($data){
-    //     [$conditions, $fields, $limit, $offset] = parse_get_params($data);
-    //     try {
-    //         $result = self::$db->search(static::$table,$conditions,$fields, $limit, $offset);
-    //         return criar_mensagem(true, 'Busca realizada com sucesso', $result);
-    //     } catch (Exception $e) {
-    //         return criar_mensagem(
-    //             false, 
-    //             'Houve um erro ao realizar busca',
-    //             [
-    //                 'detalhes' => $e->getMessage(),
-    //                 'params' => json_encode($data)
-    //             ]
-    //         );
-    //     }
-    // }
+        $params = [
+            'conditions' => $conditions,
+            'fields' => $fields,
+            'limit' => $limit,
+            'offset' => $offset
+        ];
+
+        try {
+            $result = self::$db->search(static::$table,$conditions,$fields,$limit,$offset);
+            if(empty($result)){
+                return criar_mensagem(
+                    false,
+                    'Nenhum registro encontrado',
+                    ['query' => $params]
+                );
+            }else{
+                return criar_mensagem(
+                    true,
+                    'Busca realizada com sucesso',
+                    ['lista' => $result]
+                );
+            }
+        } catch (Exception $e) {
+            return criar_mensagem(
+                false,
+                'Houve um erro ao realizar busca',
+                [
+                    'detalhes' => $e->getMessage(),
+                    'params' => json_encode($data)
+                ]
+            );
+        }
+    }
 
 }

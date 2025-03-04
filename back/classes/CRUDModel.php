@@ -129,43 +129,7 @@ class CRUDModel
 
     public function search(array $conditions = [], array $fields = [], int $limit = null, int $offset = null)
     {
-        //Se condições E campos forem vazios, chamar por ALL
-        if (empty($conditions) && empty($fields)){
-            return $this->all();
-        }else{
-            //Mudando valores de status para maiúsculos
-            if(array_key_exists('status',$conditions)){
-                $conditions['status'] = strtoupper($conditions['status']);
-            }
-            // Filtrando campos de condições
-            $condition_keys = array_keys($conditions);
-            $filtered_keys = self::$db->filter_columns(static::$table, $condition_keys);
-            $conditions = array_keys_filter($conditions,$filtered_keys);
-            // Filtrando colunas
-            $fields = self::$db->filter_columns(static::$table, $fields);
-            try {
-                $result = self::$db->search(static::$table, $conditions, $fields, $limit, $offset);
-                return $result ?? criar_mensagem(
-                    false,
-                    'Nenhum dado encontrado com os filtros mencionados',
-                    [
-                        'filtros' => $conditions,
-                        'colunas' => $fields
-                    ]
-                );
-            } catch (PDOException $e) {
-                return criar_mensagem(
-                    false,
-                    self::$db->db_catch_to_string($e),
-                    [
-                            'detalhes' => $e->getMessage(),
-                            'filtros' => $conditions,
-                            'colunas' => $fields,
-                            'status' => 500
-                    ]
-                );
-            }            
-        }
+        return self::$db->search(static::$table,$conditions,$fields,$limit,$offset);
     }
 
     // Retorna o status de uma comanda específica

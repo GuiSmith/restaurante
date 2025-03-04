@@ -27,7 +27,7 @@ try {
             $input['token'] = get_token();
             $response = match ($method) {
                 'POST' => post($input),
-                'GET' => $usuario->search($_GET),
+                'GET' => $usuario->buscar($_GET),
                 'PUT' => $usuario->atualizar($input),
                 'DELETE' => $usuario->deletar($_GET),
                 default => methodNotAllowed()
