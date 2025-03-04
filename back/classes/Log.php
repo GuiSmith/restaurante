@@ -59,7 +59,7 @@ class Log {
         return self::$db->fetchAll($sql);
     }
 
-    public function search($data)
+    public function search($data = [])
     {
         [$conditions, $fields, $limit, $offset] = parse_get_params($data);
 

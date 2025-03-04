@@ -6,7 +6,7 @@
     // require 'classes/Database.php';
 
     // $comanda = new Comanda();
-//     $usuario = new Usuario();
+    // $usuario = new Usuario();
     // $item = new Item();
     $log = new Log();
 
@@ -22,8 +22,9 @@
     // echo "\n\n";
     // var_dump($item->buscar($conditions));
     // echo "\n\n";
-    var_dump($log->search($conditions));
-    
+    // var_dump($log->search($conditions));
+ 
+    var_dump($log->search($_GET));
     echo "\n";
 
 ?>

@@ -124,11 +124,6 @@ class Database
 
     public function search($table, $conditions = [], $fields = [], $limit = null, $offset = null)
     {
-        // Se condições e campos forem vazios, retornar tudo
-        if(empty($conditions) && empty($fields)){
-            return $this->all();
-        }
-
         // Mudando valores de status para maiúsculos
         if(array_key_exists('status',$conditions)){
             $conditions['status'] = strtoupper($conditions['status']);

@@ -92,7 +92,7 @@ class Comanda extends CRUDModel
         }
     }
 
-    public function buscar($data){
+    public function buscar($data = []){
         [$conditions, $fields, $limit, $offset] = parse_get_params($data);
         $params = [
             'conditions' => $conditions,
