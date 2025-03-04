@@ -25,6 +25,34 @@ function array_keys_filter($data, $dados_permitidos)
     }
 }
 
+function parse_get_params(array $url_query)
+{
+    $conditions = [];
+    $fields = [];
+    $limit = null;
+    $offset = null;
+
+    if (isset($url_query['fields'])) {
+        $fields = explode(',', $url_query['fields']);
+    }
+
+    if (isset($url_query['limit'])) {
+        $limit = (int)$url_query['limit'];
+    }
+
+    if (isset($url_query['offset'])) {
+        $offset = (int)$url_query['offset'];
+    }
+
+    foreach ($url_query as $key => $value) {
+        if (!in_array($key, ['fields', 'limit', 'offset'])) {
+            $conditions[$key] = $value;
+        }
+    }
+
+    return [$conditions, $fields, $limit, $offset];
+}
+
 function criar_mensagem(bool $ok, string $mensagem, array $dados = [])
 {
     $array = ['ok' => $ok, 'mensagem' => $mensagem];

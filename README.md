@@ -47,6 +47,19 @@ restaurante/
 ```
 ## Caminhos da API
 Aqui você verá os caminhos disponíveis para interagir com a API do sistema de restaurante. Para cada requisito, temos o caminho correspondente e exemplos de requisições utilizando `cURL` para facilitar os testes.
+### Pesquisa
+- **Caminho:** `restaurante/back/api/endpoint.php`
+- **Campos:**
+ - `fields` (opcional): Nome dos campos que quer
+ - `limit` (opcional): Quantidade máxima de registros
+ - `offset` (opcional): Início dos registros
+OBS: a filtragem é feita pelo nome do campo seguido de seu valor
+
+Exemplo: a consulta abaixo busca o `id`, `nome` e `ativo` de `50` usuários
+``` bash
+curl -X GET "http://localhost/restaurante/back/api/usuario.php?ativo=1&fields=id,nome,ativo&limit=50" \
+-H "Authorization: Bearer abc123456" \
+```
 ### Itens
 - **Caminho:** `restaurante/back/api/item.php`
 #### Cadastro

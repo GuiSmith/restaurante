@@ -68,4 +68,21 @@ class Log {
         return $search;
     }
 
+    // public function buscar($data){
+    //     [$conditions, $fields, $limit, $offset] = parse_get_params($data);
+    //     try {
+    //         $result = self::$db->search(static::$table,$conditions,$fields, $limit, $offset);
+    //         return criar_mensagem(true, 'Busca realizada com sucesso', $result);
+    //     } catch (Exception $e) {
+    //         return criar_mensagem(
+    //             false, 
+    //             'Houve um erro ao realizar busca',
+    //             [
+    //                 'detalhes' => $e->getMessage(),
+    //                 'params' => json_encode($data)
+    //             ]
+    //         );
+    //     }
+    // }
+
 }

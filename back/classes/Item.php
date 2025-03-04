@@ -93,6 +93,7 @@ class Item extends CRUDModel
             }
         }
     }
+
     public function deletar($data){
         $dados_obrigatorios = ['id'];
         $dados_permitidos = ['token'];
@@ -118,6 +119,33 @@ class Item extends CRUDModel
             }else{
                 return criar_mensagem(false, $e->getMessage(),['status'=>500]);
             }
+        }
+    }
+
+    public function buscar($data){
+        [$conditions, $fields, $limit, $offset] = parse_get_params($data);
+        $params = [
+            'conditions' => $conditions,
+            'fields' => $fields,
+            'limit' => $limit,
+            'offset' => $offset
+        ];
+        try {
+            $result = $this->search($conditions,$fields,$limit,$offset);
+            if(empty($result)){
+                return criar_mensagem(false,'Nenhum registro encontrado', ['query' => $params]);
+            }{
+                return criar_mensagem(true, 'Busca realizada com sucesso', ['lista' => $result]);
+            }
+        } catch (Exception $e) {
+            return criar_mensagem(
+                false, 
+                'Houve um erro ao realizar busca',
+                [
+                    'detalhes' => $e->getMessage(),
+                    'params' => json_encode($data)
+                ]
+            );
         }
     }
 

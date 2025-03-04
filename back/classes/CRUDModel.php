@@ -127,7 +127,7 @@ class CRUDModel
         }
     }
 
-    public function search(array $conditions = [], array $fields = [])
+    public function search(array $conditions = [], array $fields = [], int $limit = null, int $offset = null)
     {
         //Se condições E campos forem vazios, chamar por ALL
         if (empty($conditions) && empty($fields)){
@@ -137,16 +137,14 @@ class CRUDModel
             if(array_key_exists('status',$conditions)){
                 $conditions['status'] = strtoupper($conditions['status']);
             }
-            //Verificando se há algum valor nulo nas condições passadas
-            if (in_array('',array_values($conditions))) {
-                return criar_mensagem(
-                    false, 
-                    'Impossivel realizar pesquisa usando filtros com valores nulos',
-                    ['filtros' => $conditions]
-                );
-            }
+            // Filtrando campos de condições
+            $condition_keys = array_keys($conditions);
+            $filtered_keys = self::$db->filter_columns(static::$table, $condition_keys);
+            $conditions = array_keys_filter($conditions,$filtered_keys);
+            // Filtrando colunas
+            $fields = self::$db->filter_columns(static::$table, $fields);
             try {
-                $result = self::$db->search(static::$table, $conditions, $fields);
+                $result = self::$db->search(static::$table, $conditions, $fields, $limit, $offset);
                 return $result ?? criar_mensagem(
                     false,
                     'Nenhum dado encontrado com os filtros mencionados',

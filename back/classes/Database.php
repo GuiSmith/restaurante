@@ -93,6 +93,24 @@ class Database
         return $usuario ? $usuario['id'] : null;
     }
 
+    public function filter_columns(string $table, array $columns): array
+    {
+        if(empty($columns)) return [];
+        $placeholders = implode(',', array_fill(0, count($columns), '?'));
+        $sql = 
+            "SELECT column_name
+            FROM information_schema.columns
+            WHERE table_name = ?
+                AND column_name IN ($placeholders)
+        ";
+        $params = array_merge([$table],$columns);
+        $result = $this->fetchAll($sql,$params);
+        $column_names = array_map(function($row){
+            return $row['column_name'];
+        },$result);
+        return $column_names;
+    }
+
     public function fetch(string $table, array $unique_key){
         $key = array_keys($unique_key)[0];
         $sql = "SELECT * FROM $table WHERE $key = :$key";
@@ -104,7 +122,7 @@ class Database
         return $this->query($sql, $params)->fetchAll();
     }
 
-    public function search($table, $conditions = [], $fields = [])
+    public function search($table, $conditions = [], $fields = [], $limit = null, $offset = null)
     {
         // Se $fields for um array, converte para uma string separada por vírgulas
         $fields = !empty($fields) ? implode(", ", $fields) : '*';
@@ -117,6 +135,14 @@ class Database
 
         // Prepara a consulta SQL
         $sql = "SELECT $fields FROM $table $where";
+        if ($limit !== null) {
+            $sql .= " LIMIT :limit";
+            $conditions['limit'] = $limit;
+        }
+        if ($offset !== null) {
+            $sql .= " OFFSET :offset";
+            $conditions['offset'] = $offset;
+        }
         // Executa a consulta e retorna os resultados
         return $this->fetchAll($sql, $conditions);
     }
