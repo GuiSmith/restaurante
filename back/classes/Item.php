@@ -19,6 +19,7 @@ class Item extends CRUDModel
     public function criar($data)
     {
         $dados_obrigatorios = ['descricao', 'valor', 'tipo'];
+        $dados_permitidos = ['ativo'];
         // Valida dados passados
         if (!array_keys_exists($data, $dados_obrigatorios)) {
             return criar_mensagem(
@@ -27,7 +28,13 @@ class Item extends CRUDModel
                 ['informados' => $data, 'obrigatorios' => $dados_obrigatorios]
             );
         }
-        //Descrição
+        // Retira dados desnecessários
+        $data = array_keys_filter($data,array_merge($dados_obrigatorios,$dados_permitidos));
+        // Ativo
+        if(isset($data['ativo'])){
+            $data['ativo'] = is_bool($data['ativo']) ? $data['ativo'] : true;
+        }
+        // Descrição
         if (empty($data['descricao'])) {
             return criar_mensagem(false, 'Descricao invalida');
         }
@@ -38,6 +45,14 @@ class Item extends CRUDModel
             //Formata o valor para retornar como 00.00
             $data['valor'] = normalizar_valor($data['valor']);
         }
+        // Tipo
+        if(!in_array($data['tipo'],$this->enum_valores(static::$enum_tipo))){
+            return criar_mensagem(
+                false,
+                'Tipo invalido, informe um destes: '.implode(', ',$this->enum_valores(static::$enum_tipo)),
+                ['informados' => $dados],
+            );
+        }
         //Criando item
         try {
             $id = $this->insert($data);
@@ -47,10 +62,16 @@ class Item extends CRUDModel
                 ['id' => $id],
             );
         } catch(Exception $e){
-            if($e->getCode() == '22P02'){
-                return criar_mensagem(false, 'Tipo invalido, informar um destes: '.implode(', ',$this->enum_valores(static::$enum_tipo)));
+            $test = strpos($e->getMessage(),'invalid input value for enum');
+            if($test){
+                return criar_mensagem(false,
+                'Tipo invalido, informe um destes: '.implode(', ',$this->enum_valores(static::$enum_tipo)),
+                ['detalhes' => $e->getMessage()]);
             }else{
-                return criar_mensagem(false, $e->getMessage(),['status'=>500]);
+                return criar_mensagem(
+                    false, 
+                    $e->getMessage(),
+                    ['informados' => $data,'status' => 500]);
             }
         }
     }
@@ -65,6 +86,12 @@ class Item extends CRUDModel
                 'Há dados faltantes',
                 ['informados' => $data, 'obrigatorios' => $dados_obrigatorios, 'permitidos' => $dados_permitidos]
             );
+        }
+        // Retira dados desnecessários
+        $data = array_keys_filter($data,array_merge($dados_obrigatorios,$dados_permitidos));
+        // Ativo
+        if(isset($data['ativo'])){
+            $data['ativo'] = is_bool($data['ativo']) ? $data['ativo'] : true;
         }
         //Descrição
         if(isset($data['descricao']) && empty($data['descricao'])){
