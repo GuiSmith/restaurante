@@ -1,30 +1,18 @@
 <?php
-    // require 'classes/Comanda.php';
-    // require 'classes/Usuario.php';
-    // require 'classes/Item.php';
-    require 'classes/Log.php';
-    // require 'classes/Database.php';
+    require 'classes/Item.php';
 
-    // $comanda = new Comanda();
-    // $usuario = new Usuario();
-    // $item = new Item();
-    $log = new Log();
+    $item = new Item();
 
-    $fields = ['id','uiui','nome','baba','data_hora_cadastro'];
-    $conditions = [
-        'fields' => implode(',',$fields),
-        'limit' => 59,
+    $dados = [
+        'id' => '',
+        'ativo' => '',
+        'descricao' => 'teste',
+        'valor' => 1,
+        'tipo' => 'BEBIDA',
+        'data_hora_cadastro' => ''
     ];
-
-    // var_dump($comanda->buscar($conditions));
-//     echo "\n\n";
-    // var_dump($usuario->buscar($conditions));
-    // echo "\n\n";
-    // var_dump($item->buscar($conditions));
-    // echo "\n\n";
-    // var_dump($log->search($conditions));
  
-    var_dump($log->search($_GET));
+    var_dump($item->criar($dados));
     echo "\n";
 
 ?>
