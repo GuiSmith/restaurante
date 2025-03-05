@@ -122,7 +122,7 @@ class Database
         return $this->query($sql, $params)->fetchAll();
     }
 
-    public function search($table, $conditions = [], $fields = [], $limit = null, $offset = null)
+    public function search($table, $conditions = [], $fields = [], $limit = null, $offset = null, $order_by = null)
     {
         // Mudando valores de status para maiúsculos
         if(array_key_exists('status',$conditions)){
@@ -148,14 +148,31 @@ class Database
 
         // Prepara a consulta SQL
         $sql = "SELECT $fields FROM $table $where";
+
+        // LIMIT
         if ($limit !== null) {
             $sql .= " LIMIT :limit";
             $conditions['limit'] = $limit;
         }
+
+        // OFFSET
         if ($offset !== null) {
             $sql .= " OFFSET :offset";
             $conditions['offset'] = $offset;
         }
+
+        // ORDER BY
+        if($order_by !== null && is_array($order_by)){
+            $filtered_order_by = $this->filter_columns($table, array_keys($order_by));
+            if(count($filtered_order_by) > 0){
+                $direction = current($order_by) == 'desc' ? 'DESC' : 'ASC';
+                $sql .= " ORDER BY ".key($order_by)." $direction";
+            }
+        }
+
+        var_dump($sql);
+        var_dump($conditions);
+
         // Executa a consulta e retorna os resultados
         return $this->fetchAll($sql, $conditions);
     }

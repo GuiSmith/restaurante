@@ -61,17 +61,18 @@ class Log {
 
     public function search($data = [])
     {
-        [$conditions, $fields, $limit, $offset] = parse_get_params($data);
+        [$conditions, $fields, $limit, $offset, $order_by] = parse_get_params($data);
 
         $params = [
             'conditions' => $conditions,
             'fields' => $fields,
             'limit' => $limit,
-            'offset' => $offset
+            'offset' => $offset,
+            'order_by' => $order_by,
         ];
 
         try {
-            $result = self::$db->search(static::$table,$conditions,$fields,$limit,$offset);
+            $result = self::$db->search(static::$table,$conditions,$fields,$limit,$offset,$order_by);
             if(empty($result)){
                 return criar_mensagem(
                     false,

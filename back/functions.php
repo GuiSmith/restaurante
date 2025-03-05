@@ -31,6 +31,7 @@ function parse_get_params(array $url_query)
     $fields = [];
     $limit = null;
     $offset = null;
+    $order_by = null;
 
     if (isset($url_query['fields'])) {
         $fields = explode(',', $url_query['fields']);
@@ -44,13 +45,17 @@ function parse_get_params(array $url_query)
         $offset = (int)$url_query['offset'];
     }
 
+    if(isset($url_query['order_by'])){
+        $order_by = $url_query['order_by'];
+    }
+
     foreach ($url_query as $key => $value) {
-        if (!in_array($key, ['fields', 'limit', 'offset'])) {
+        if (!in_array($key, ['fields', 'limit', 'offset', 'order_by'])) {
             $conditions[$key] = $value;
         }
     }
 
-    return [$conditions, $fields, $limit, $offset];
+    return [$conditions, $fields, $limit, $offset, $order_by];
 }
 
 function criar_mensagem(bool $ok, string $mensagem, array $dados = [])

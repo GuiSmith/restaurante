@@ -184,18 +184,19 @@ class Usuario extends CRUDModel
     }
 
     public function buscar($data = []){
-        [$conditions, $fields, $limit, $offset] = parse_get_params($data);
+        [$conditions, $fields, $limit, $offset, $order_by] = parse_get_params($data);
         $params = [
             'conditions' => $conditions,
             'fields' => $fields,
             'limit' => $limit,
-            'offset' => $offset
+            'offset' => $offset,
+            'order_by' => $order_by,
         ];
         try {
-            $result = $this->search($conditions,$fields,$limit,$offset);
+            $result = $this->search($conditions,$fields,$limit,$offset,$order_by);
             if(empty($result)){
                 return criar_mensagem(false,'Nenhum registro encontrado', ['query' => $params]);
-            }else{
+            }{
                 return criar_mensagem(true, 'Busca realizada com sucesso', ['lista' => $result]);
             }
         } catch (Exception $e) {
