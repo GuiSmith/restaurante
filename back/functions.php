@@ -46,7 +46,7 @@ function parse_get_params(array $url_query)
     }
 
     if(isset($url_query['order_by'])){
-        $order_by = $url_query['order_by'];
+        $order_by = ['order_by' => explode(',',$url_query['order_by'])];
     }
 
     foreach ($url_query as $key => $value) {
