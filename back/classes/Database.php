@@ -170,9 +170,6 @@ class Database
             }
         }
 
-        var_dump($sql);
-        var_dump($conditions);
-
         // Executa a consulta e retorna os resultados
         return $this->fetchAll($sql, $conditions);
     }

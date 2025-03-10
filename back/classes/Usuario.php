@@ -30,7 +30,7 @@ class Usuario extends CRUDModel
         if(!array_keys_exists($data, $dados_obrigatorios)){
             return criar_mensagem(
                 false,
-                'Há dados faltantes: '.implode(', ', array_diff(array_keys($dados_obrigatorios),array_keys($data))),
+                'Dados obrigatórios: '.implode(', ', $dados_obrigatorios),
                 [
                     'obrigatorios' => $dados_obrigatorios,
                     'permitidos' => $dados_permitidos,
@@ -252,6 +252,7 @@ class Usuario extends CRUDModel
             }
             //Buscando usuario
             $usuario = $this->search(['email' => $data['email']], ['id','email','senha','token','data_hora_expiracao_token'])[0] ?? null;
+
             //Checando senha
             if (!$usuario || !password_verify($data['senha'], $usuario['senha'])) {
                 return criar_mensagem(false, 'Credenciais invalidas');
@@ -268,8 +269,24 @@ class Usuario extends CRUDModel
         }
         // Atualizar token
         $expiracao = date('Y-m-d H:i:s', strtotime('+1 year'));
-        $this->atualizar_token($usuario['id'], $token, $expiracao);
-        return criar_mensagem(true, 'Login realizado com sucesso', ['token' => $token, 'data_hora_expiracao_token' => $expiracao]);
+        try {
+            $this->atualizar_token($usuario['id'], $token, $expiracao);
+            $usuario_teste = $this->buscar_por_token($token, ['id','email','senha','token','data_hora_expiracao_token']);
+            if($usuario_teste){
+                return criar_mensagem(true, 'Login realizado com sucesso', ['token' => $token, 'data_hora_expiracao_token' => $expiracao]);
+            }else{
+                return criar_mensagem(
+                    false,
+                    'Login não realizado, token não foi atualizado'
+                );
+            }
+        } catch (Exception $e) {
+            return criar_mensagem(
+                false,
+                'Login não realizado: '.$e-getMessage(),
+                $data
+            );
+        }
     }
 
     // Função de logout
@@ -313,10 +330,19 @@ class Usuario extends CRUDModel
     // Função que atualiza o token de um usuário
     public function atualizar_token($id, $token, $expiracao): int
     {
-        $linhas_afetadas = $this->update(
-            ['token' => $token, 'data_hora_expiracao_token' => $expiracao, 'id' => $id]
-        );
-        return $linhas_afetadas;
+        $dados = [
+            'token' => $token,
+            'data_hora_expiracao_token' => $expiracao,
+            'id' => $id,
+            'login' => true
+        ];
+        $linhas_afetadas = $this->update($dados);
+        if($linhas_afetadas > 0){
+            return $linhas_afetadas;
+        }else{
+            throw new Exception("Token não atualizado");
+            
+        }
     }
 
     // Função que verifica se token está expirado

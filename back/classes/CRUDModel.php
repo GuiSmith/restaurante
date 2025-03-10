@@ -16,7 +16,6 @@ class CRUDModel
             self::$db = Database::getInstance();
             if ($debug) {
                 echo "<p>construtor de CRUDModel</p>";
-                var_dump(self::$db);
             }
         }
         if(!self::$log){
@@ -55,7 +54,11 @@ class CRUDModel
         // Lidando com tokens
         $token = $data['token'] ?? null;
         if($token){
-            unset($data['token']);
+            if(isset($data['login']) and $data['login']){
+                unset($data['login']);
+            }else{
+                unset($data['token']);
+            }
         }
 
         // Atualizando registro

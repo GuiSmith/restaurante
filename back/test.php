@@ -1,26 +1,14 @@
 <?php
-    require 'classes/Item.php';
 
-    $item = new Item();
+require 'classes/Usuario.php';
 
-    $dados = [
-        'id' => '',
-        'ativo' => '',
-        'descricao' => 'teste',
-        'valor' => 1,
-        'tipo' => 'BEBIDA',
-        'data_hora_cadastro' => ''
-    ];
+$usuario = new Usuario();
 
-    $busca = [
-        'ativo' => true,
-        'fields' => 'id,descricao',
-        // 'order_by' => ['id' => 'asc']
-    ];
- 
-    // var_dump($item->criar($dados));
-    print_r($item->buscar($busca));
+$data = [
+    'email' => 'guilhermessmith2024@gmail.com',
+    'senha' => 'Senha123@',
+];
 
-    echo "\n";
+var_dump($usuario->login($data));
 
 ?>
