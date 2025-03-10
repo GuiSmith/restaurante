@@ -64,12 +64,15 @@
             $parts = explode(' ', $header);
             if(count($parts) == 2){
                 return $parts[1];
-            }else{
-                return '';
             }
-        }else{
-            return '';
         }
+
+        // Verifica se o token foi enviado nos cookies
+        if(isset($_COOKIE['token'])){
+            return $_COOKIE['token'];
+        }
+
+        return '';
     }
 
     // Função que verifica se o token é válido
