@@ -149,18 +149,6 @@ class Database
         // Prepara a consulta SQL
         $sql = "SELECT $fields FROM $table $where";
 
-        // LIMIT
-        if ($limit !== null) {
-            $sql .= " LIMIT :limit";
-            $conditions['limit'] = $limit;
-        }
-
-        // OFFSET
-        if ($offset !== null) {
-            $sql .= " OFFSET :offset";
-            $conditions['offset'] = $offset;
-        }
-
         // ORDER BY
         if($order_by !== null && is_array($order_by)){
             $filtered_order_by = $this->filter_columns($table, current($order_by));
@@ -169,6 +157,17 @@ class Database
             }
         }
 
+        // LIMIT
+        if ($limit !== null && is_numeric($limit) && $limit > 0) {
+            $sql .= " LIMIT $limit";
+        }
+
+        // OFFSET
+        if ($offset !== null && is_numeric($offset) && $offset >= 0) {
+            $sql .= " OFFSET $offset";
+        }
+
+        // var_dump($sql);
         // Executa a consulta e retorna os resultados
         return $this->fetchAll($sql, $conditions);
     }
