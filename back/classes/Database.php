@@ -163,10 +163,9 @@ class Database
 
         // ORDER BY
         if($order_by !== null && is_array($order_by)){
-            $filtered_order_by = $this->filter_columns($table, array_keys($order_by));
+            $filtered_order_by = $this->filter_columns($table, current($order_by));
             if(count($filtered_order_by) > 0){
-                $direction = current($order_by) == 'desc' ? 'DESC' : 'ASC';
-                $sql .= " ORDER BY ".key($order_by)." $direction";
+                $sql .= " ORDER BY ".current($filtered_order_by)." ASC";
             }
         }
 
