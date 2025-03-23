@@ -6,7 +6,7 @@ class ItemComanda extends CRUDModel
 {
     protected static $table = 'item_comanda';
 
-    protected static $status = ['cadastrado','confirmado','pronto','entregue'];
+    protected static $status = ['CADASTRADO','CONFIRMADO','PRONTO','ENTREGUE'];
 
     public function __construct($debug = false)
     {
@@ -21,7 +21,7 @@ class ItemComanda extends CRUDModel
         $dados_obrigatorios = ['id_item', 'id_comanda', 'quantidade'];
         $dados_permitidos = ['token','descontos','isento','status'];
         // Valida dados passados
-        if(array_keys_exists($data,$dados_obrigatorios)){
+        if(!array_keys_exists($data,$dados_obrigatorios)){
             return criar_mensagem(
                 false,
                 'Ha dados faltantes',
@@ -77,7 +77,7 @@ class ItemComanda extends CRUDModel
         $dados_obrigatorios = ['id'];
         $dados_permitidos = ['token','quantidade', 'status', 'descontos', 'isento'];
         // Valida dados passados
-        if(array_keys_exists($data,$dados_obrigatorios)){
+        if(!array_keys_exists($data,$dados_obrigatorios)){
             return criar_mensagem(
                 false,
                 'Ha dados faltantes',
@@ -90,8 +90,7 @@ class ItemComanda extends CRUDModel
         }
         // Status (opcional)
         if (isset($data['status'])) {
-            $data['status'] = strtolower($data['status']);
-            if (empty($data['status']) || !in_array($data['status'],static::$status)){
+            if(empty($data['status']) || !in_array($data['status'],static::$status)){
                 return criar_mensagem(false, 'Status invalido, informe um destes: '.implode(', ',array_map('strtolower',static::$status)));
             }
         }
