@@ -15,15 +15,9 @@ class Comanda extends CRUDModel
 
     public function abrir($data = [])
     {
-        $dados_permitidos = ['token'];
+        $dados_permitidos = ['token', 'status'];
         // Valida dados passados
-        if(!array_keys_exists($data, $dados_permitidos)){
-            return criar_mensagem(
-                false, 
-                'Há dados faltantes',
-                ['informados' => $data,'permitidos'=>$dados_permitidos]
-                );
-        }
+        $data = array_keys_filter($data,$dados_permitidos);
         //Definindo status de comanda para aberta
         $data['status'] = 'aberta';
         try {
