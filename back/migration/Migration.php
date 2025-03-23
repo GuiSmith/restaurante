@@ -82,6 +82,8 @@ class Migration
                     data_hora_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     descontos DECIMAL(10,2) DEFAULT 0.00,
                     isento BOOLEAN DEFAULT FALSE,
+                    valor_unitario DECIMAL(10,2),
+                    valor_total DECIMAL(10,2),
                     FOREIGN KEY (id_comanda) REFERENCES comanda(id),
                     FOREIGN KEY (id_item) REFERENCES item(id)
                 );
@@ -107,8 +109,7 @@ class Migration
         ],
         'function' => [
             'atualizar_comanda_em_item_comanda' =>
-            "
-                CREATE OR REPLACE FUNCTION atualizar_comanda_em_item_comanda()
+                "CREATE OR REPLACE FUNCTION atualizar_comanda_em_item_comanda()
                 RETURNS TRIGGER AS $$
                 DECLARE
                     total_comanda DECIMAL(10, 2);
@@ -165,19 +166,17 @@ class Migration
 
                     RETURN NEW;
                 END;
-                $$ LANGUAGE plpgsql;
-            ",
-            'criar_log_item_comanda' => "
-                CREATE OR REPLACE FUNCTION criar_log_item_comanda()
+                $$ LANGUAGE plpgsql;",
+            'criar_log_item_comanda' =>
+                "CREATE OR REPLACE FUNCTION criar_log_item_comanda()
                 RETURNS TRIGGER AS $$
                 BEGIN
                     INSERT INTO log_item_comanda (id_item_comanda, status) VALUES (NEW.id, NEW.status);
                     RETURN NEW;
                 END;
-                $$ LANGUAGE plpgsql;
-            ",
-            "atualizar_comanda_em_pagamento" => "
-                CREATE OR REPLACE FUNCTION atualizar_comanda_em_pagamento()
+                $$ LANGUAGE plpgsql;",
+            "atualizar_comanda_em_pagamento" => 
+                "CREATE OR REPLACE FUNCTION atualizar_comanda_em_pagamento()
                 RETURNS TRIGGER AS $$
                 DECLARE
                     var_comanda RECORD;
@@ -203,10 +202,9 @@ class Migration
                     END IF;
                     RETURN NEW;
                 END;
-                $$ LANGUAGE plpgsql;
-            ",
-            'atualizar_data_fechamento_comanda' => "
-                CREATE OR REPLACE FUNCTION atualizar_data_fechamento_comanda()
+                $$ LANGUAGE plpgsql;",
+            'atualizar_data_fechamento_comanda' =>
+                "CREATE OR REPLACE FUNCTION atualizar_data_fechamento_comanda()
                 RETURNS TRIGGER AS $$
                 BEGIN
                     IF NEW.status = 'FECHADA' THEN
@@ -214,10 +212,9 @@ class Migration
                     END IF;
                     RETURN NEW;
                 END;
-                $$ LANGUAGE plpgsql;
-            ",
-            'verificar_itens_em_aberto' => "
-                CREATE OR REPLACE FUNCTION verificar_itens_em_aberto(p_id_comanda INT)
+                $$ LANGUAGE plpgsql;",
+            'verificar_itens_em_aberto' => 
+                "CREATE OR REPLACE FUNCTION verificar_itens_em_aberto(p_id_comanda INT)
                 RETURNS BOOLEAN AS $$
                 DECLARE
                     itens_abertos INT;
@@ -237,35 +234,57 @@ class Migration
                         RETURN FALSE;
                     END IF;
                 END;
-                $$ LANGUAGE plpgsql;
-            "
+                $$ LANGUAGE plpgsql;",
+            "atualizar_item_comanda" =>
+                "CREATE OR REPLACE FUNCTION atualizar_item_comanda()
+                RETURNS TRIGGER AS $$
+                BEGIN
+                    -- Verificar se a quantidade é 0 e ajustar para 1
+                    IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') AND (NEW.quantidade = 0) THEN
+                        NEW.quantidade = 1;
+                    END IF;
+
+                    -- Verificar se valor_unitario é nulo e ajustar para o valor do item
+                    IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') AND (NEW.valor_unitario IS NULL) THEN
+                        SELECT valor INTO NEW.valor_unitario FROM item WHERE id = NEW.id_item;
+                    END IF;
+
+                    -- Calcular o valor_total como quantidade * valor_unitario
+                    IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
+                        NEW.valor_total = NEW.quantidade * NEW.valor_unitario;
+                    END IF;
+
+                    RETURN NEW;
+                END;
+                $$ LANGUAGE plpgsql;",
         ],
         'trigger' => [
-            "atualizar_comanda_em_item_comanda" => "
-                CREATE TRIGGER atualizar_comanda_em_item_comanda
+            "atualizar_comanda_em_item_comanda" => 
+                "CREATE TRIGGER atualizar_comanda_em_item_comanda
                 AFTER INSERT OR UPDATE OR DELETE
                 ON item_comanda
                 FOR EACH ROW
-                EXECUTE FUNCTION atualizar_comanda_em_item_comanda();
-            ",
-            "trigger_criar_log_item_comanda" => "
-                CREATE OR REPLACE TRIGGER item_comanda_log_trigger
+                EXECUTE FUNCTION atualizar_comanda_em_item_comanda();",
+            "trigger_criar_log_item_comanda" => 
+                "CREATE OR REPLACE TRIGGER item_comanda_log_trigger
                 BEFORE INSERT OR UPDATE OR DELETE ON item_comanda
                 FOR EACH ROW
-                EXECUTE FUNCTION criar_log_item_comanda();
-            ",
-            "trigger_atualizar_comanda_em_pagamento" => "
-                CREATE OR REPLACE TRIGGER trigger_atualizar_comanda_em_pagamento
+                EXECUTE FUNCTION criar_log_item_comanda();",
+            "trigger_atualizar_comanda_em_pagamento" =>
+                "CREATE OR REPLACE TRIGGER trigger_atualizar_comanda_em_pagamento
                 BEFORE INSERT OR DELETE ON pagamento
                 FOR EACH ROW
-                EXECUTE FUNCTION atualizar_comanda_em_pagamento();
-            ",
-            'trigger_atualizar_data_fechamento_comanda' => "
-                CREATE OR REPLACE TRIGGER trigger_atualizar_data_fechamento_comanda
+                EXECUTE FUNCTION atualizar_comanda_em_pagamento();",
+            'trigger_atualizar_data_fechamento_comanda' => 
+                "CREATE OR REPLACE TRIGGER trigger_atualizar_data_fechamento_comanda
                 BEFORE UPDATE ON comanda
                 FOR EACH ROW
-                EXECUTE FUNCTION atualizar_data_fechamento_comanda();
-            "
+                EXECUTE FUNCTION atualizar_data_fechamento_comanda();",
+            'trigger_atualizar_item_comanda' =>
+                "CREATE OR REPLACE TRIGGER trigger_atualizar_item_comanda
+                BEFORE INSERT OR UPDATE ON item_comanda
+                FOR EACH ROW
+                EXECUTE FUNCTION atualizar_item_comanda();"
         ],
         'view' => [
             'ordens_producao' => "
@@ -342,6 +361,7 @@ class Migration
 
     private $trigger_tables = [
         'atualizar_comanda_em_item_comanda' => 'item_comanda',
+        'trigger_atualizar_item_comanda' => 'item_comanda',
         'trigger_criar_log_item_comanda' => 'log_item_comanda',
         'trigger_atualizar_comanda_em_pagamento' => 'pagamento',
         'trigger_atualizar_data_fechamento_comanda' => 'comanda'
