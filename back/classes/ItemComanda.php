@@ -25,7 +25,11 @@ class ItemComanda extends CRUDModel
             return criar_mensagem(
                 false,
                 'Ha dados faltantes',
-            ['obrigatorios' => $dados_obrigatorios, 'permitidos' => $dados_permitidos]
+                [
+                    'obrigatorios' => $dados_obrigatorios,
+                    'permitidos' => $dados_permitidos,
+                    'informados' => $data
+                ]
             );
         }
         // ID Item
