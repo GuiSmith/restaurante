@@ -15,7 +15,7 @@ try {
         throw new Exception('Acesso negado');
     }else{
         $response = match ($method) {
-            'GET' => $relatorios->view($_GET['view'] ?? null),
+            'GET' => $relatorios->view($_GET['view']),
             default => methodNotAllowed()
         };
         http_code($method, $response);

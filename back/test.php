@@ -1,14 +1,9 @@
 <?php
 
-require 'classes/Usuario.php';
+require 'classes/Relatorios.php';
 
-$usuario = new Usuario();
+$relatorio = new Relatorios();
 
-$data = [
-    'email' => 'guilhermessmith2024@gmail.com',
-    'senha' => 'Senha123@',
-];
-
-var_dump($usuario->login($data));
+var_dump($relatorio->view('ordens_producao'));
 
 ?>

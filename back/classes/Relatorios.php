@@ -11,14 +11,17 @@ class Relatorios {
         static::$db = Database::getInstance();
     }
 
-    public function view($view = 'ordens_producao')
-    {
-        if ($view){
-            $sql = "SELECT * FROM $view";
+    public function view(string $view = null)
+    {   
+        $sql_views = "SELECT viewname as view FROM pg_catalog.pg_views WHERE schemaname = 'public'";
+        $views = array_map(function($viewname){
+            return $viewname['view'];
+        },self::$db->fetchAll($sql_views));
+        if(!in_array($view,$views)){
+            return $views;
         }else{
-            $sql = "SELECT viewname as view FROM pg_catalog.pg_views WHERE schemaname = 'public'";
+            $sql = "SELECT * FROM $view";
+            return self::$db->fetchAll($sql);
         }
-        return self::$db->fetchAll($sql);
     }
-
 }
