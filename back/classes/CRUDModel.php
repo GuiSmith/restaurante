@@ -130,9 +130,9 @@ class CRUDModel
         }
     }
 
-    public function search(array $conditions = [], array $fields = [], int $limit = null, int $offset = null, array $order_by = null)
+    public function search(array $conditions = [], array $fields = [], int $limit = null, int $offset = null, array $order_by = null, array $like = null)
     {
-        return self::$db->search(static::$table,$conditions,$fields,$limit,$offset,$order_by);
+        return self::$db->search(static::$table,$conditions,$fields,$limit,$offset,$order_by, $like);
     }
 
     // Retorna o status de uma comanda específica

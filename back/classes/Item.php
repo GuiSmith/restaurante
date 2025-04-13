@@ -150,16 +150,18 @@ class Item extends CRUDModel
     }
 
     public function buscar($data = []){
-        [$conditions, $fields, $limit, $offset, $order_by] = parse_get_params($data);
+        [$conditions, $fields, $limit, $offset, $order_by, $like] = parse_get_params($data);
+
         $params = [
             'conditions' => $conditions,
             'fields' => $fields,
             'limit' => $limit,
             'offset' => $offset,
             'order_by' => $order_by,
+            'like' => $like,
         ];
         try {
-            $result = $this->search($conditions,$fields,$limit,$offset,$order_by);
+            $result = $this->search($conditions,$fields,$limit,$offset,$order_by,$like);
             if(empty($result)){
                 return criar_mensagem(false,'Nenhum registro encontrado', ['query' => $params]);
             }{

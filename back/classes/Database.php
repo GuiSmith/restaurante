@@ -122,7 +122,7 @@ class Database
         return $this->query($sql, $params)->fetchAll();
     }
 
-    public function search($table, $conditions = [], $fields = [], $limit = null, $offset = null, $order_by = null)
+    public function search($table, $conditions = [], $fields = [], $limit = null, $offset = null, $order_by = null, $like = null)
     {
         // Mudando valores de status para maiúsculos
         if(array_key_exists('status',$conditions)){
@@ -142,8 +142,31 @@ class Database
 
         // Cria a parte do WHERE com base nas condições fornecidas
         $where = "";
+        // if (!empty($conditions)) {
+        //     $where = "WHERE " . implode(" AND ", array_map(fn($key) => "$key = :$key", array_keys($conditions)));
+        // }
+
         if (!empty($conditions)) {
-            $where = "WHERE " . implode(" AND ", array_map(fn($key) => "$key = :$key", array_keys($conditions)));
+
+            $whereClauses = [];
+            
+            foreach ($conditions as $key => $value) {
+                if (!is_array($like) || !in_array($key, $like)) {
+                    $whereClauses[] = "$key = :$key";
+                }
+            }
+            
+            if (!empty($like) && is_array($like)) {
+                foreach ($like as $column) {
+                    if (array_key_exists($column, $conditions)) {
+                    $whereClauses[] = "$column LIKE :{$column}_like";
+                    $conditions["{$column}_like"] = '%' . $conditions[$column] . '%';
+                    unset($conditions[$column]);
+                    }
+                }
+            }
+
+            $where = "WHERE " . implode(" AND ", $whereClauses);
         }
 
         // Prepara a consulta SQL
@@ -167,7 +190,7 @@ class Database
             $sql .= " OFFSET $offset";
         }
 
-        // var_dump($sql);
+        // echo json_encode(['query' => $sql]);
         // Executa a consulta e retorna os resultados
         return $this->fetchAll($sql, $conditions);
     }

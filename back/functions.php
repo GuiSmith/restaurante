@@ -32,6 +32,7 @@ function parse_get_params(array $url_query)
     $limit = null;
     $offset = null;
     $order_by = null;
+    $like = null;
 
     if (isset($url_query['fields'])) {
         $fields = explode(',', $url_query['fields']);
@@ -49,13 +50,17 @@ function parse_get_params(array $url_query)
         $order_by = ['order_by' => explode(',',$url_query['order_by'])];
     }
 
+    if (isset($url_query['like'])) {
+        $like = explode(',', $url_query['like']);
+    }
+
     foreach ($url_query as $key => $value) {
-        if (!in_array($key, ['fields', 'limit', 'offset', 'order_by'])) {
+        if (!in_array($key, ['fields', 'limit', 'offset', 'order_by', 'like'])) {
             $conditions[$key] = $value;
         }
     }
 
-    return [$conditions, $fields, $limit, $offset, $order_by];
+    return [$conditions, $fields, $limit, $offset, $order_by, $like];
 }
 
 function criar_mensagem(bool $ok, string $mensagem, array $dados = [])
